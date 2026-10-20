@@ -1,5 +1,5 @@
-PPU Competitive Programming Templates
-Recreated by Basel Al-Jabari
+NDP-Problem Competitive Programming Templates
+Basel Al-Jabari
 
 CURRENT STEP
 All three levels have C++ templates and are ready for your review.
@@ -8,6 +8,9 @@ All three levels have C++ templates and are ready for your review.
 1_Star:   6 topics,  7 files.
 Total:   62 topics, 75 standalone programs.
 Use TOPICS.tsv to find a topic, then open a method's complete C++ program.
+Preserve chosen numeric constants when updating templates. Double hashing
+uses the original (base, modulus) pairs (911, 1000000007) and
+(3571, 1000000009). Keep Miller-Rabin's original seven bases unchanged.
 
 FOLDER ORDER
 Algorithms / importance / domain / algorithm / method.cpp
@@ -18,7 +21,7 @@ Example: Algorithms/3_Stars/Graphs/Minimum_Spanning_Tree/Kruskal.cpp
 2_Stars = useful next: narrower conditions or more specialized applications.
 1_Star  = keep for later: niche tools or smaller benefit for this reference.
 
-Stars measure preparation value for this PPU team, NOT difficulty.
+Stars measure preparation value for NDP-Problem, NOT difficulty.
 This is a suggested ranking, not measured ICPC occurrence rates.
 A one-star topic can still be the key to solving a hard contest problem.
 Some domains have no three-star topic in the requested scope.

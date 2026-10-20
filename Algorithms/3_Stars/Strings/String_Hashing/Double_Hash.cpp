@@ -23,8 +23,10 @@ prefix[r] - prefix[l-1]*BASE^(r-l+1) gives the hash of [l,r].
 Equal text has equal hashes at every position: no modular inverse needed.
 Use both moduli for the SAME pair of substrings, and check lengths first.
 Build: O(n). Query: O(1). Extra memory: O(n).
-Pitfalls: Different strings can share even two hashes. Random bases make
-deliberate collisions harder; they do not make the test exact.
+Keep the original (base, modulus) pairs: (911, 1000000007) and
+(3571, 1000000009).
+Pitfalls: Different strings can share even two hashes. These fixed bases
+do not make the test exact.
 If an exact answer is required, use an exact method (KMP for one pattern)
 or verify matching text directly; verification can take O(length).
 All residues/products fit ll for the moduli below. Text is fixed: no updates.
@@ -75,9 +77,7 @@ void Solve() {
   int q;
   cin >> s >> q;
 
-  mt19937 rng((unsigned)chrono::steady_clock::now().time_since_epoch().count()); // RNG = random number generator.
-  uniform_int_distribution<int> pickBase(256, 1000000000);
-  ll base1 = pickBase(rng), base2 = pickBase(rng);
+  const ll base1 = 911, base2 = 3571;
   Double_Hash hash(s, base1, base2);
 
   for (int query = 1; query <= q; ++query) {

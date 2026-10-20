@@ -55,10 +55,17 @@ Checks include:
 Input generators use fixed seeds:
 20261020 for the three-star suites; 20261021 for remaining_checks.py;
 20261022 for mo_tree_checks.py.
-The hash and treap implementations choose random bases/priorities. These
-checks do not remove hash-collision risk or the treap's worst-case height.
+Double hashing uses the original fixed bases 911 and 3571; the treap
+chooses random priorities. These checks do not remove hash-collision risk
+or the treap's worst-case height.
 FFT uses floating point; its file explains precision and the exact NTT option.
 Checks support the stated input limits. No online-judge submissions were made.
+
+CONSTANTS FOLLOW-UP (2026-10-20)
+Restored double-hash bases 911 and 3571 with moduli 1000000007 and
+1000000009. Recompiled without warnings; 31 runs checked 9,004 substring
+comparisons against exact string equality. Miller-Rabin's seven bases
+already matched the archived original and were left unchanged.
 
 FOLDER AND STYLE CHECKS
 - 62 topic folders: 29 three-star, 27 two-star, 6 one-star.

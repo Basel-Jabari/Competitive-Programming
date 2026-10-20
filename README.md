@@ -1,8 +1,8 @@
 # Competitive Programming Templates
 
-Practical **GNU C++17** templates for **PPU teams**, personal practice, and ICPC preparation. Each file starts with a problem, input/output format, and sample, then gives a complete solution with usage notes and complexity.
+Practical **GNU C++17** templates for **NDP-Problem**, personal practice, and ICPC preparation. Each file starts with a problem, input/output format, and sample, then gives a complete solution with usage notes and complexity.
 
-**Recreated by Basel Al-Jabari**
+**Basel Al-Jabari**
 
 [Start here](#start-here) · [Topics](#topics) · [Template style](#template-style) · [Validation](#validation)
 

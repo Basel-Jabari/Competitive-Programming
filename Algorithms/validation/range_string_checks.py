@@ -2,8 +2,8 @@
 
 Run: python Algorithms/validation/range_string_checks.py [--compiler g++]
 Only Algorithms/build/range_strings is used for generated binaries.
-Random test INPUTS use a fixed seed. The double-hash template uses its own
-random bases; these tests cannot prove absence of hash collisions.
+Random test INPUTS use a fixed seed. The double-hash template preserves
+the original bases 911 and 3571; tests cannot prove absence of collisions.
 """
 
 import argparse

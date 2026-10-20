@@ -1,0 +1,101 @@
+PPU TEMPLATE VALIDATION
+Date: 2026-10-20
+
+75 standalone GNU C++17 programs across 62 topics.
+All 75 compiled without warnings.
+3,719 full-program checks passed across the suites below.
+Changed files were recompiled and their affected checks rerun after final edits.
+This count does not count those repeated checks twice.
+
+Group                          Files   Program runs
+Three-star graphs and trees        14          1,069
+Three-star ranges and strings       9            282
+Three-star math and matrices       11            379
+Three-star geometry/ordered sets    3            458
+Migrated subtree depth example      1             82
+Two-star and one-star programs     36          1,334
+Tree-path Mo (Permutate Paths)      1            115
+TOTAL                             75          3,719
+
+Checks include:
+- Every sample printed at the top of a template.
+- Seeded random inputs compared with independent simpler solutions.
+- Disconnected graphs, parallel edges, negative cycles, empty structures,
+  and invalid ordered-set ranks. Self-loops where the contract allows them.
+- Brute-force spanning trees, cuts, bridges, articulation points, edge blocks,
+  matching, vertex cover, and all-source distance sums.
+- 200,000-vertex chains for iterative graph/tree methods, and a 200,000-value
+  treap build followed by reversal, insertion, deletion, and sum queries.
+- Dinic's stated maximum depth of 500 vertices.
+- Naive arrays/sequences for range queries, lazy assignments/adds, reversals,
+  difference arrays, Mo, sqrt decomposition, and Cartesian tree shape.
+- Subtree depth counts against direct ancestor walks, including another root.
+- Tree-path Mo against direct BFS paths and positive missing-value search:
+  the supplied Permutate Paths sample, random trees, duplicates, large values,
+  missing-value block boundaries, same-node paths, and both endpoint orders.
+  Also 100,000-node chains/stars and a chain with 100,000 random path queries.
+- 50,000 sparse segment-tree operations with a coordinate limit of 10^18.
+- Overlapping matches, substring comparisons, tries, duplicate order
+  statistics, and independent word-by-word grid search.
+- Sieve bounds up to 10^7; modular arithmetic near 10^18; huge decimal
+  exponents; generalized CRT; direct gcd-based totient and Mobius checks.
+- Full unsigned-64-bit Miller-Rabin boundary cases and known pseudoprimes.
+- Exact integer combinatorics, distribution DP, Fibonacci recurrence,
+  Lucas digits, and rational references for both Bernoulli definitions.
+- Rectangular matrix products, step-by-step walks, repeated power sums,
+  and ordered range products with updates.
+- Hulls against gift wrapping; closest pair against all pairs;
+  projection, reflection, rotation, and triangle area examples.
+- CHT and Li Chao DP answers against a quadratic reference.
+- FFT against integer convolution, including the stated maximum input bound.
+- NTT against modular convolution for all six listed moduli. Independent
+  checks of primality, primitive roots, and maximum power-of-two root orders.
+- XOR, AND, OR transforms against direct bitwise convolution.
+
+Input generators use fixed seeds:
+20261020 for the three-star suites; 20261021 for remaining_checks.py;
+20261022 for mo_tree_checks.py.
+The hash and treap implementations choose random bases/priorities. These
+checks do not remove hash-collision risk or the treap's worst-case height.
+FFT uses floating point; its file explains precision and the exact NTT option.
+Checks support the stated input limits. No online-judge submissions were made.
+
+FOLDER AND STYLE CHECKS
+- 62 topic folders: 29 three-star, 27 two-star, 6 one-star.
+- Every topic has one or two C++ files; no planned-only topic remains.
+- Importance is the first folder level, then domain, then algorithm.
+- Every file has a question, sample, Solve(), main(), and author line.
+- Block explanations; // for the Messenger of Allah quote, optional
+  cin >> t, and abbreviation notes. Counted queries and indexed loops.
+- Problem positions are 1-based where suitable; natural zero-based cases
+  are explained in the folder guide and relevant templates.
+- No hardcoded local input/output files.
+- Every template is visible to Git. A local ignore override fixes the old
+  *test* pattern matching the letters in "Shortest_Paths".
+- Build output stays inside Algorithms/build and is ignored.
+- All 38 legacy files were compared byte-for-byte with the recovery ZIP
+  before removing the five old folders. See MIGRATION.txt.
+
+RUN AGAIN FROM THE REPOSITORY ROOT
+Requires Python 3 and GNU g++ on PATH:
+
+python Algorithms/validation/graph_tree_checks.py
+python Algorithms/validation/range_string_checks.py
+python Algorithms/validation/math_checks.py
+python Algorithms/validation/geometry_ordered_checks.py
+python Algorithms/validation/remaining_checks.py
+python Algorithms/validation/subtree_depth_checks.py
+python Algorithms/validation/mo_tree_checks.py
+python Algorithms/validation/catalog_checks.py
+
+catalog_checks.py checks files, style, paths, and archive hashes; it does
+not add any executions to the 3,719 C++ program checks above.
+
+Compiler used here: C:\MinGW\bin\g++.exe (GCC 13.2).
+Python used here:
+C:\Users\Basel\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe
+
+All builds use -std=c++17 -O2 -Wall -Wextra.
+Graph/tree, math, remaining, subtree-depth, and tree-Mo checks add -Wshadow.
+Range/string adds -Wshadow -pedantic.
+Geometry/PBDS adds -Werror.

@@ -1,111 +1,108 @@
-# Competitive Programming
+# Competitive Programming Templates
 
-A well-organized C++ competitive programming repository that contains optimized implementations of important algorithms, data structures, and training materials. The repository is designed to support both personal practice and coaching sessions, making it easier to study, teach, revise, and reuse standard techniques efficiently.
+Practical **GNU C++17** templates for **PPU teams**, personal practice, and ICPC preparation. Each file starts with a problem, input/output format, and sample, then gives a complete solution with usage notes and complexity.
 
-## Project Description
+**Recreated by Basel Al-Jabari**
 
-This project is a structured competitive programming library built using C++. It includes clean and optimized implementations of common algorithms and data structures used in programming contests, organized by topic to make learning and revision easier. As both a competitive programming learner and coach, I use this repository to prepare training material, explain problem-solving techniques to students, and keep reliable templates that can be reused during practice and contests. The goal of the project is to save time, improve code quality, and provide organized resources that benefit both my students and myself.
+[Start here](#start-here) · [Topics](#topics) · [Template style](#template-style) · [Validation](#validation)
 
-## Purpose
+## Find a template
 
-The main purpose of this repository is to collect competitive programming templates and training resources in one organized place.
+The collection has **75 standalone programs across 62 topics**. Start with three stars, then add the tools your team needs.
 
-It helps with:
+| Priority | Focus | Topics | C++ files |
+| --- | --- | ---: | ---: |
+| [★★★ Three stars](Algorithms/3_Stars/) | Core tools and common building blocks | 29 | 38 |
+| [★★ Two stars](Algorithms/2_Stars/) | Useful tools for more specific problems | 27 | 30 |
+| [★ One star](Algorithms/1_Star/) | Specialized topics to study later | 6 | 7 |
+| **Total** | | **62** | **75** |
 
-- Preparing training sessions for students.
-- Explaining algorithms in a clean and practical way.
-- Revising important topics before contests.
-- Keeping optimized C++ implementations ready for reuse.
-- Supporting students with structured material instead of scattered code.
-- Improving personal speed and accuracy during problem solving.
+Stars mean **preparation priority**, not difficulty. A three-star topic can be hard, and a one-star topic can be essential for a particular problem. The ranking is a team study guide, not a count of past ICPC appearances.
 
-## Main Topics
-
-The repository includes material related to:
-
-- Graph Theory
-- Range Queries
-- String Algorithms
-- Competitive Programming Training
-- Algorithmic Templates
-- Problem-Solving Techniques
-
-## Repository Structure
+Each topic has at most two implementations, with different use cases or useful performance tradeoffs. See the [complete topic catalog](Algorithms/TOPICS.tsv) for every path and the [folder guide](Algorithms/README.txt) for method choices and ranking sources.
 
 ```text
-Competitive-Programming/
-│
-├── Graph_Theory/
-│   └── Graph algorithms and related templates
-│
-├── Range_Queries/
-│   └── Data structures and techniques for range query problems
-│
-├── String_Algorithms/
-│   └── String processing algorithms and templates
-│
-├── Training/
-│   └── Training material and organized practice content
-│
-├── README.md
-├── LICENSE
-└── .gitignore
+Algorithms/
+├── 3_Stars/
+├── 2_Stars/
+├── 1_Star/
+│   └── Domain/Algorithm/Method.cpp
+├── validation/       # Reproducible checks
+├── TOPICS.tsv        # Full topic list, priorities, and paths
+├── README.txt        # Method choices and style guide
+├── VALIDATION.txt    # Recorded results and commands
+└── MIGRATION.txt     # Old paths and their replacements
 ```
 
-## Features
+For example: `Algorithms/3_Stars/Graphs/Minimum_Spanning_Tree/Kruskal.cpp`.
 
-- Written fully in C++.
-- Organized by algorithmic topic.
-- Contains reusable templates for contest preparation.
-- Focuses on optimized and clean implementations.
-- Useful for both teaching and personal practice.
-- Helps students learn topics step by step.
-- Provides a reference for solving problems faster during contests.
+## Topics
 
-## Why This Project Matters
+| Domain | Included topics |
+| --- | --- |
+| C++ syntax | [Ordered sets with GNU PBDS](Algorithms/3_Stars/CPP_Syntax/Ordered_Set/PBDS.cpp): includes, ranks, bounds, ascending/descending order, and duplicates |
+| Graphs | Traversal, disjoint set union, shortest paths, minimum spanning trees, strongly connected components, bridges, articulation points, biconnected components, [maximum flow and minimum cut](Algorithms/3_Stars/Graphs/Maximum_Flow/Dinic.cpp), and bipartite matching |
+| Trees | [Lowest common ancestor](Algorithms/3_Stars/Trees/Lowest_Common_Ancestor/), subtree sums, descendant counts by depth, and rerooting |
+| Range queries | Prefix sums, difference arrays, Fenwick and segment trees, sparse tables, sqrt decomposition, dynamic segment trees, treaps, Cartesian trees, and [Mo on arrays and tree paths](Algorithms/2_Stars/Range_Queries/Mo_Algorithm/) |
+| Strings | KMP, double hashing, tries, and grid word search |
+| Number theory | GCD/LCM, modular arithmetic, sieves, factorization, [Euler's totient and large exponents](Algorithms/2_Stars/Number_Theory/Euler_Totient_and_Exponents/), Chinese remainder theorem, cancellation, Miller-Rabin, Mobius function, and Pisano periods |
+| Combinatorics | nCr, nPr, stars and bars, Fibonacci, Catalan numbers, Lucas's theorem, and Bernoulli numbers |
+| Matrices | Rectangular multiplication, exponentiation, sums of powers, and ordered range products |
+| Geometry | Vector operations, rotation, reflection, projection, convex hull, closest pair, and Heron's formula |
+| DP optimization | [Convex hull trick](Algorithms/2_Stars/DP_Optimization/Convex_Hull_Trick/) and [Li Chao tree](Algorithms/2_Stars/DP_Optimization/Li_Chao_Tree/) |
+| Numerical transforms | FFT, NTT with a modulus/root table, and FWHT for XOR, AND, and OR convolution |
 
-Competitive programming requires both strong understanding and fast implementation. This repository helps solve both problems by keeping important algorithms written in a clean, tested, and organized way.
+## Start here
 
-For students, it works as a learning resource that makes topics easier to follow during training. For me as a coach and trainer, it helps me prepare sessions, explain ideas clearly, and provide students with structured material. For me as a competitor, it also works as a personal library for revision and faster implementation.
+Use a GNU C++17 compiler. Some templates use GNU extensions such as `bits/stdc++.h`, policy-based data structures (PBDS), or `__int128`; their comments state the requirements.
 
-## Technologies Used
+1. Find the topic in the [catalog](Algorithms/TOPICS.tsv).
+2. Read the problem comment, especially the limits, indexing, and required conditions.
+3. Compile **one file at a time**. Every template has its own `main()`.
+4. Run its sample, then adapt the example to your problem.
 
-- C++
-- Standard Template Library (STL)
-- Git & GitHub
-
-## How to Use
-
-Clone the repository:
+For example, compile Dijkstra's algorithm:
 
 ```bash
 git clone https://github.com/Basel-3mk/Competitive-Programming.git
+cd Competitive-Programming
+g++ -std=c++17 -O2 -Wall -Wextra Algorithms/3_Stars/Graphs/Nonnegative_Shortest_Paths/Dijkstra.cpp -o solution
 ```
 
-Move into the project folder:
+Run `./solution` on Linux/macOS, or `.\solution.exe` in PowerShell, and enter the sample input shown at the top of the file.
+
+Check each algorithm's conditions before reusing it. For example, Dijkstra requires nonnegative edge weights, and the tree-path Mo template assumes a fixed tree and fixed node values.
+
+## Template style
+
+- **Problem first:** a concrete task, input/output, limits, and a sample before the implementation.
+- **Complete solutions:** required includes, `Solve()`, fast input/output, and `main()` in each file.
+- **Practical explanations:** brief notes for familiar ideas; more detail for harder algorithms.
+- **Consistent indexing:** 1-based problem positions where suitable. Natural exceptions, such as string offsets and native PBDS ranks, are explained.
+- **Local state:** lambdas where useful, indexed loops, and counted query loops.
+- **Readable comments:** `/* ... */` for longer notes; `//` for the Messenger of Allah quote, optional `cin >> t;`, and acronym meanings beside definitions.
+
+The author line uses `cerr`; only the required answer is written to `cout`.
+
+## Validation
+
+The [recorded validation](Algorithms/VALIDATION.txt) covers **75 warning-free builds** and **3,719 program executions** using samples, independent small reference solutions, random cases, and boundary inputs. Large cases include long trees and large range-query inputs.
+
+The tree-path Mo example uses **Permutate Paths**, including its sample and checks against direct path searches. These are local checks; no online-judge acceptance is claimed.
+
+To run the structure/style checks or the tree-path Mo checks, use Python 3 and GNU `g++` on your `PATH`:
 
 ```bash
-cd Competitive-Programming
+python Algorithms/validation/catalog_checks.py
+python Algorithms/validation/mo_tree_checks.py
 ```
 
-Open the topic folder you want to study, then read or use the related C++ implementation.
+The [validation guide](Algorithms/VALIDATION.txt) lists all suites and their results. Generated binaries and temporary files stay in the ignored `Algorithms/build/` folder. Algorithm-specific limits still matter: hashing can collide, treap balance is randomized, and FFT uses floating-point arithmetic.
 
-## Example Usage
+## Earlier versions
 
-A student can use the repository to study a specific topic, such as graph algorithms or range queries, while a trainer can use the same files as supporting material during a coaching session.
+The old algorithm folders were replaced by the importance-first structure. Their original code and Word notes are preserved in the [recovery archive](Archives/), together with a SHA-256 manifest. Use the [migration guide](Algorithms/MIGRATION.txt) to find each replacement.
 
-A competitor can also use the templates for revision before contests or as a reference while practicing problems.
+## License
 
-## Target Audience
-
-This repository is useful for:
-
-- Competitive programming students.
-- Beginner and intermediate problem solvers.
-- Programming contest participants.
-- Coaches and trainers.
-- Anyone who wants organized C++ algorithm templates.
-
-## Author
-
-Developed and maintained by Basel as part of his competitive programming learning, coaching, and training journey.
+See [LICENSE](LICENSE) for the repository's Unlicense terms.

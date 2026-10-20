@@ -1,0 +1,89 @@
+OLD FOLDERS -> CURRENT TEMPLATES
+Recreated by Basel Al-Jabari
+Date: 2026-10-20
+
+Current paths below are relative to Algorithms/.
+The five old folders were removed after their replacements passed checks.
+Their full contents are preserved in:
+../Archives/Legacy_Algorithms_2026-10-20.zip
+38 files: 33 C++ sources and 5 Word documents.
+The Word notes are preserved for reference; they were not rewritten as C++.
+The two pre-existing modified range-query files are preserved as they were.
+
+GRAPH_THEORY
+Articulation_Points/Tarjan_Algorithm.cpp
+  -> 2_Stars/Graphs/Articulation_Points/Low_Link.cpp
+Biconnected_Components/Tarjan_Algorithm.cpp
+  -> 1_Star/Graphs/Biconnected_Components/Edge_Blocks.cpp
+Bridges/Tarjan_Algorithm.cpp
+  -> 2_Stars/Graphs/Bridges/Low_Link.cpp
+Euler_Tour_1/Example.cpp
+  -> 3_Stars/Trees/Subtree_Queries/Depth_Count.cpp
+     Entry times grouped by depth; binary searches count descendants.
+Euler_Tour_2/Lowest_Common_Ancestor.cpp
+Lowest_Common_Ancestor/Euler_Tour_2.cpp
+  -> 3_Stars/Trees/Lowest_Common_Ancestor/Euler_RMQ.cpp
+Euler_Tour_3/Fenwick_Tree_On_Tree.cpp
+Euler_Tour_3/Range_Sum_On_Tree.cpp
+Euler_Tour_3/Segment_Tree_On_Tree.cpp
+  -> 3_Stars/Trees/Subtree_Queries/Euler_Fenwick.cpp
+     One flattening example; the range segment-tree templates can use the
+     same inclusive [tin[u],tout[u]] interval when more operations are needed.
+Flow/Dinic_Algorithm.cpp
+Flow/Edmond_Karp_Algorithm.cpp
+Flow/Ford_Fulkerson_Algorithm.cpp
+  -> 3_Stars/Graphs/Maximum_Flow/Dinic.cpp
+     Keep the stronger general time bound and minimum-cut example.
+Graph_With_Other_Data_Structures/Graph_And_Trie.cpp
+  -> 2_Stars/Strings/Grid_Word_Search/Trie_Search.cpp
+Lowest_Common_Ancestor/Binary_Lifting.cpp
+  -> 3_Stars/Trees/Lowest_Common_Ancestor/Binary_Lifting.cpp
+Re-Rooting_Tree/Example.cpp
+  -> 2_Stars/Trees/Rerooting/Distance_Sums.cpp
+Shortest_Path/0-1_BFS.cpp
+  -> 3_Stars/Graphs/Binary_Weight_Shortest_Paths/Zero_One_BFS.cpp
+Shortest_Path/Bellman_Ford_Algorithm.cpp
+  -> 2_Stars/Graphs/Negative_Weight_Shortest_Paths/Bellman_Ford.cpp
+Shortest_Path/Dijkstra_Algorithm.cpp
+  -> 3_Stars/Graphs/Nonnegative_Shortest_Paths/Dijkstra.cpp
+Shortest_Path/Floyd_Warshall_Algorithm.cpp
+  -> 3_Stars/Graphs/All_Pairs_Shortest_Paths/Floyd_Warshall.cpp
+Spanning_Trees/Kruskal_Algorithm.cpp
+  -> 3_Stars/Graphs/Minimum_Spanning_Tree/Kruskal.cpp
+Spanning_Trees/Prim_Algorithm.cpp
+  -> 3_Stars/Graphs/Minimum_Spanning_Tree/Prim_Dense.cpp
+     Dense Prim offers a different useful bound from edge-list Kruskal.
+Strongly_Connected_Components/Kosaraju_Algorithm.cpp
+  -> 3_Stars/Graphs/Strongly_Connected_Components/Kosaraju.cpp
+Strongly_Connected_Components/Tarjan_Algorithm.cpp
+  -> 3_Stars/Graphs/Strongly_Connected_Components/Tarjan.cpp
+
+RANGE_QUERIES
+Fenwick_Tree/1D.cpp
+  -> 3_Stars/Range_Queries/Fenwick_Tree/Point_Add_Range_Sum.cpp
+Mo_Algorithm/1D.cpp
+  -> 2_Stars/Range_Queries/Mo_Algorithm/Distinct_Values.cpp
+No_Data_Structure/2D_Prefix_Sum.cpp
+  -> 3_Stars/Range_Queries/Prefix_Sums/Two_Dimensional.cpp
+No_Data_Structure/2D_Range_Sum.cpp
+  -> 2_Stars/Range_Queries/Difference_Arrays/Two_Dimensional.cpp
+Segment_Tree/1D_With_Lazy_Propagation.cpp
+  -> 3_Stars/Range_Queries/Segment_Tree/Lazy_Set_Add_Range_Sum.cpp
+Segment_Tree/1D_Without_Lazy_Propagation.cpp
+  -> 3_Stars/Range_Queries/Segment_Tree/Point_Set_Range_Sum.cpp
+
+STRING_ALGORITHMS
+Knuth_Morris_Pratt_Algorithm/Example.cpp
+  -> 3_Stars/Strings/Pattern_Matching/KMP.cpp
+Rabin_Karp/Example.cpp
+  -> 3_Stars/Strings/Pattern_Matching/KMP.cpp for exact pattern matching.
+  -> 3_Stars/Strings/String_Hashing/Double_Hash.cpp for substring hashing.
+     No duplicate hash-based pattern-count file is needed.
+
+DRAFT FOLDERS
+Temp_Hopcroft_Algorithm/Hopcroft_Algorithm.cpp
+  -> 2_Stars/Graphs/Bipartite_Matching/Hopcroft_Karp.cpp
+Temp_Rabin_Miller_Test/Rabin_Miller_Test.cpp
+  -> 2_Stars/Number_Theory/Miller_Rabin/Unsigned_64_Bit.cpp
+
+Training and PPU_Templates were not changed.

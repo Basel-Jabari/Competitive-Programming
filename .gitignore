@@ -2,6 +2,9 @@ Training
 Temp*
 .vscode
 
+# Private LaTeX project, including PDF exports and source bundles.
+/PPU_Templates/
+
 *test*
 *Test*
 

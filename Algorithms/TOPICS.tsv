@@ -1,0 +1,63 @@
+Priority	Domain	Algorithm	Stage	Selected methods / scope	Reason	Path
+3_Stars	CPP_Syntax	Ordered_Set	ready_for_review	PBDS unique keys and duplicate pairs; ascending and descending ranks	Required syntax reference; online order statistics	3_Stars/CPP_Syntax/Ordered_Set
+3_Stars	Combinatorics	Combinations_and_Permutations	ready_for_review	Factorials under prime modulus; Pascal under any modulus	Core nCr and nPr queries	3_Stars/Combinatorics/Combinations_and_Permutations
+3_Stars	Combinatorics	Fibonacci	ready_for_review	Fast doubling	Large recurrence indices in logarithmic time	3_Stars/Combinatorics/Fibonacci
+3_Stars	Combinatorics	Stars_and_Bars	ready_for_review	Nonnegative solutions; positive-variable shift	Common distribution counting	3_Stars/Combinatorics/Stars_and_Bars
+3_Stars	Geometry	Convex_Hull	ready_for_review	Monotone chain	Standard polygon boundary tool	3_Stars/Geometry/Convex_Hull
+3_Stars	Geometry	Vector_Operations	ready_for_review	Add; subtract; scale; dot; cross; orientation	Building blocks for geometry	3_Stars/Geometry/Vector_Operations
+3_Stars	Graphs	All_Pairs_Shortest_Paths	ready_for_review	Floyd-Warshall	Short all-pairs template for small graphs	3_Stars/Graphs/All_Pairs_Shortest_Paths
+3_Stars	Graphs	Binary_Weight_Shortest_Paths	ready_for_review	0-1 BFS	Linear time when weights are only 0 and 1	3_Stars/Graphs/Binary_Weight_Shortest_Paths
+3_Stars	Graphs	Disjoint_Set_Union	ready_for_review	Union by size and path compression	Dynamic connectivity; used in Kruskal	3_Stars/Graphs/Disjoint_Set_Union
+3_Stars	Graphs	Graph_Traversal	ready_for_review	BFS; iterative DFS	Core building blocks for most graph tasks	3_Stars/Graphs/Graph_Traversal
+3_Stars	Graphs	Maximum_Flow	ready_for_review	Dinic; includes minimum cut	A reusable model for many allocation and cut problems	3_Stars/Graphs/Maximum_Flow
+3_Stars	Graphs	Minimum_Spanning_Tree	ready_for_review	Kruskal; dense Prim	Sparse and dense graph cases	3_Stars/Graphs/Minimum_Spanning_Tree
+3_Stars	Graphs	Nonnegative_Shortest_Paths	ready_for_review	Dijkstra with a min heap	Common weighted paths	3_Stars/Graphs/Nonnegative_Shortest_Paths
+3_Stars	Graphs	Strongly_Connected_Components	ready_for_review	Kosaraju; Tarjan	Directed component compression; both linear	3_Stars/Graphs/Strongly_Connected_Components
+3_Stars	Matrices	Matrix_Exponentiation	ready_for_review	Square binary power; fixed-length walk example	Linear recurrences and repeated transitions	3_Stars/Matrices/Matrix_Exponentiation
+3_Stars	Matrices	Matrix_Multiplication	ready_for_review	Rectangular modular multiplication	Reusable code; exact input and output dimensions	3_Stars/Matrices/Matrix_Multiplication
+3_Stars	Number_Theory	GCD_and_LCM	ready_for_review	Euclid	Basic arithmetic building block	3_Stars/Number_Theory/GCD_and_LCM
+3_Stars	Number_Theory	Modular_Arithmetic	ready_for_review	Binary power; extended-Euclid inverse	Essential modular computations and division conditions	3_Stars/Number_Theory/Modular_Arithmetic
+3_Stars	Number_Theory	Prime_Factorization	ready_for_review	Trial division	Short reusable factorization for moderate integers	3_Stars/Number_Theory/Prime_Factorization
+3_Stars	Number_Theory	Prime_Sieve	ready_for_review	Eratosthenes; linear smallest-prime-factor sieve	Many prime and factor queries	3_Stars/Number_Theory/Prime_Sieve
+3_Stars	Range_Queries	Fenwick_Tree	ready_for_review	Point add and range sum	Small fast dynamic prefix sums	3_Stars/Range_Queries/Fenwick_Tree
+3_Stars	Range_Queries	Prefix_Sums	ready_for_review	1D; 2D	Constant-time static sums	3_Stars/Range_Queries/Prefix_Sums
+3_Stars	Range_Queries	Segment_Tree	ready_for_review	Point set; lazy range set and add	Flexible range operations and updates	3_Stars/Range_Queries/Segment_Tree
+3_Stars	Range_Queries	Sparse_Table	ready_for_review	Static range minimum	Fast repeated static RMQ	3_Stars/Range_Queries/Sparse_Table
+3_Stars	Strings	Pattern_Matching	ready_for_review	KMP	Exact linear-time matching with overlaps	3_Stars/Strings/Pattern_Matching
+3_Stars	Strings	String_Hashing	ready_for_review	Double polynomial hash	Constant-time substring comparisons; collision caveat	3_Stars/Strings/String_Hashing
+3_Stars	Strings	Trie	ready_for_review	Word and prefix counts	Shared prefixes and dictionary operations	3_Stars/Strings/Trie
+3_Stars	Trees	Lowest_Common_Ancestor	ready_for_review	Binary lifting; Euler walk and sparse table	Ancestor and distance queries	3_Stars/Trees/Lowest_Common_Ancestor
+3_Stars	Trees	Subtree_Queries	ready_for_review	Euler flattening with Fenwick sums; depth lists and binary searches	Dynamic subtree sums and static descendant counts at a given depth	3_Stars/Trees/Subtree_Queries
+2_Stars	Combinatorics	Catalan_Numbers	ready_for_review	Counting brackets and related structures	Special family of combinatorial counts	2_Stars/Combinatorics/Catalan_Numbers
+2_Stars	Combinatorics	Lucas_Theorem	ready_for_review	Digit decomposition for prime modulus	Huge n with small prime modulus	2_Stars/Combinatorics/Lucas_Theorem
+2_Stars	DP_Optimization	Convex_Hull_Trick	ready_for_review	Monotone slopes and queries; DP example	Linear transitions with useful order conditions	2_Stars/DP_Optimization/Convex_Hull_Trick
+2_Stars	DP_Optimization	Li_Chao_Tree	ready_for_review	Line insertions and minimum queries; DP example	Arbitrary insertion/query order within a domain	2_Stars/DP_Optimization/Li_Chao_Tree
+2_Stars	Geometry	Closest_Pair	ready_for_review	Sweep line	Requested O(N log N) nearest-pair method	2_Stars/Geometry/Closest_Pair
+2_Stars	Geometry	Parallel_and_Perpendicular_Components	ready_for_review	Projection and rejection	Distance and alignment calculations	2_Stars/Geometry/Parallel_and_Perpendicular_Components
+2_Stars	Geometry	Reflection_and_Rotation	ready_for_review	2D formulas and implementation	Useful geometric transformations	2_Stars/Geometry/Reflection_and_Rotation
+2_Stars	Graphs	Articulation_Points	ready_for_review	Low-link DFS	Connectivity after vertex removal	2_Stars/Graphs/Articulation_Points
+2_Stars	Graphs	Bipartite_Matching	ready_for_review	Hopcroft-Karp; minimum vertex cover	Specialized matching; faster than general flow on this task	2_Stars/Graphs/Bipartite_Matching
+2_Stars	Graphs	Bridges	ready_for_review	Low-link DFS with edge IDs	Connectivity after edge removal	2_Stars/Graphs/Bridges
+2_Stars	Graphs	Negative_Weight_Shortest_Paths	ready_for_review	Bellman-Ford; reachable negative cycles	Needed when Dijkstra's conditions fail	2_Stars/Graphs/Negative_Weight_Shortest_Paths
+2_Stars	Matrices	Counting_Accumulation	ready_for_review	Binary composition of I+A+...+A^k	Sum transition counts over lengths 0 through k	2_Stars/Matrices/Counting_Accumulation
+2_Stars	Matrices	RMQ_on_Matrix_Multiplication	ready_for_review	Segment tree for ordered products A[l]*...*A[r]; point replacement	Dynamic products of noncommuting transformations	2_Stars/Matrices/RMQ_on_Matrix_Multiplication
+2_Stars	Number_Theory	Cancellation_Law	ready_for_review	Linear congruences and gcd reduction	Correct cancellation when a factor has no inverse	2_Stars/Number_Theory/Cancellation_Law
+2_Stars	Number_Theory	Chinese_Remainder_Theorem	ready_for_review	Generalized CRT also covers coprime moduli	Combine modular conditions	2_Stars/Number_Theory/Chinese_Remainder_Theorem
+2_Stars	Number_Theory	Euler_Totient_and_Exponents	ready_for_review	Single value and sieve; valid exponent reduction	Coprime counts and large modular powers; explain uses	2_Stars/Number_Theory/Euler_Totient_and_Exponents
+2_Stars	Number_Theory	Miller_Rabin	ready_for_review	Deterministic unsigned 64-bit primality	Large primality queries beyond a sieve	2_Stars/Number_Theory/Miller_Rabin
+2_Stars	Number_Theory	Mobius_Function	ready_for_review	Linear sieve and coprime-count example	Useful inclusion-exclusion over divisors	2_Stars/Number_Theory/Mobius_Function
+2_Stars	Numerical_Transforms	FFT	ready_for_review	Iterative complex FFT; convolution	Large polynomial and counting convolutions	2_Stars/Numerical_Transforms/FFT
+2_Stars	Numerical_Transforms	NTT	ready_for_review	Iterative NTT; prime/primitive-root/length table	Exact convolution under suitable primes	2_Stars/Numerical_Transforms/NTT
+2_Stars	Range_Queries	Difference_Arrays	ready_for_review	1D; 2D	Many offline range additions	2_Stars/Range_Queries/Difference_Arrays
+2_Stars	Range_Queries	Dynamic_Segment_Tree	ready_for_review	Sparse nodes on a large coordinate domain	Very large index range with few updates	2_Stars/Range_Queries/Dynamic_Segment_Tree
+2_Stars	Range_Queries	Mo_Algorithm	ready_for_review	Array ranges; tree paths with Euler tour and LCA	Offline queries with cheap add/remove or vertex-toggle operations	2_Stars/Range_Queries/Mo_Algorithm
+2_Stars	Range_Queries	Sqrt_Decomposition	ready_for_review	Block decomposition	Flexible operations when tree merging is awkward	2_Stars/Range_Queries/Sqrt_Decomposition
+2_Stars	Range_Queries	Treap	ready_for_review	Implicit treap	Sequence edits and reversals	2_Stars/Range_Queries/Treap
+2_Stars	Strings	Grid_Word_Search	ready_for_review	Trie and grid search	Existing specialized graph/string example	2_Stars/Strings/Grid_Word_Search
+2_Stars	Trees	Rerooting	ready_for_review	Two-pass tree DP	Answers for every possible root	2_Stars/Trees/Rerooting
+1_Star	Combinatorics	Bernoulli_Numbers	ready_for_review	Ordinary numbers and power sums; separate second-kind coefficients; B1 convention	Niche coefficient formulas; ordinary numbers handle huge-n power sums	1_Star/Combinatorics/Bernoulli_Numbers
+1_Star	Geometry	Heron_Formula	ready_for_review	Triangle area from side lengths	Simple but narrow tool; handle numeric error	1_Star/Geometry/Heron_Formula
+1_Star	Graphs	Biconnected_Components	ready_for_review	Edge stack and low links	More specialized decomposition	1_Star/Graphs/Biconnected_Components
+1_Star	Number_Theory	Pisano_Period	ready_for_review	Fibonacci modulo periods; state method and safe limits	Narrower modular sequence problems	1_Star/Number_Theory/Pisano_Period
+1_Star	Numerical_Transforms	FWHT	ready_for_review	XOR/AND/OR transforms in one file	Specialized bitwise convolutions	1_Star/Numerical_Transforms/FWHT
+1_Star	Range_Queries	Cartesian_Tree	ready_for_review	Monotonic stack build	Specialized range and structure reductions	1_Star/Range_Queries/Cartesian_Tree

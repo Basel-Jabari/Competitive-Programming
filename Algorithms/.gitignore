@@ -1,0 +1,5 @@
+# The repository's broad *test* rule also matches "Shortest_Paths".
+!*/
+!*.cpp
+/build/
+/validation/__pycache__/

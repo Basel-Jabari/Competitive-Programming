@@ -1,4 +1,5 @@
-"""Compile and validate every 2-star/1-star program using independent oracles.
+"""Check newly added 2-star/1-star programs, including retained Hopcroft-Karp.
+Restored originals are checked separately by restored_checks.py.
 Run: python Algorithms/validation/remaining_checks.py [--skip-compile]
 Generated files stay in Algorithms/build/remaining.
 """
@@ -20,6 +21,9 @@ RNG = random.Random(20261021)
 SOURCES = sorted(list((ROOT / "2_Stars").rglob("*.cpp")) + list((ROOT / "1_Star").rglob("*.cpp")))
 # Tree paths have their own BFS-path oracle in mo_tree_checks.py.
 SOURCES = [p for p in SOURCES if p != ROOT / "2_Stars/Range_Queries/Mo_Algorithm/Tree_Paths.cpp"]
+from original_sources import MAPPING
+RESTORED = {ROOT / path for _, path, _ in MAPPING}
+SOURCES = [p for p in SOURCES if p not in RESTORED]
 FILES = {p.parent.name + "/" + p.stem: p for p in SOURCES}
 RUNS = 0
 
@@ -69,83 +73,8 @@ def samples():
         check(key, data, expected, any(s in key for s in ("Reflection", "Components/Projection", "Heron")))
     print("All published samples passed.", flush=True)
 
-def components(n, edges, removed_vertex=-1, removed_edge=-1):
-    graph = [[] for _ in range(n)]
-    for i, (u, v) in enumerate(edges):
-        if i == removed_edge or u == removed_vertex or v == removed_vertex: continue
-        graph[u].append(v)
-        graph[v].append(u)
-    seen, count = set(), 0
-    for s in range(n):
-        if s == removed_vertex or s in seen: continue
-        count += 1
-        stack = [s]
-        seen.add(s)
-        while stack:
-            u = stack.pop()
-            for v in graph[u]:
-                if v not in seen:
-                    seen.add(v)
-                    stack.append(v)
-    return count
 
 def graph_checks():
-    for case in range(45):
-        n = RNG.randint(1, 8)
-        edges = [(RNG.randrange(n), RNG.randrange(n)) for _ in range(RNG.randrange(14))]
-        edges = [(u, v) for u, v in edges if u != v]
-        data = f"{n} {len(edges)}\n" + rows([(u+1, v+1) for u, v in edges])
-        baseline = components(n, edges)
-        bridges = [i+1 for i in range(len(edges)) if components(n, edges, removed_edge=i) > baseline]
-        points = [i+1 for i in range(n) if components(n, edges, removed_vertex=i) > baseline]
-        check("Bridges/Low_Link", data, f"{len(bridges)}\n" + flat(bridges))
-        check("Articulation_Points/Low_Link", data, f"{len(points)}\n" + flat(points))
-        # Independent block oracle: two edges are joined if they lie on a
-        # common simple cycle; take the transitive closure over these relations.
-        parent = list(range(len(edges)))
-        def find(u):
-            while parent[u] != u: u = parent[u]
-            return u
-        adj = [[] for _ in range(n)]
-        for i, (u, v) in enumerate(edges):
-            adj[u].append((v, i)); adj[v].append((u, i))
-        for start in range(n):
-            def dfs(u, seen, used):
-                for v, idx in adj[u]:
-                    if idx in used: continue
-                    if v == start and len(used) >= 1:
-                        cycle = used + [idx]
-                        for e in cycle[1:]: parent[find(e)] = find(cycle[0])
-                    elif v not in seen:
-                        dfs(v, seen | {v}, used + [idx])
-            dfs(start, {start}, [])
-        groups = {}
-        for i in range(len(edges)): groups.setdefault(find(i), []).append(i+1)
-        expected = sorted(groups.values())
-        out = list(map(int, run("Biconnected_Components/Edge_Blocks", data)))
-        count, index, actual = out[0], 1, []
-        for _ in range(count):
-            size = out[index]; index += 1
-            actual.append(out[index:index+size]); index += size
-        assert index == len(out) and actual == expected, (edges, expected, actual)
-    for _ in range(50):
-        n = RNG.randint(1, 7); m = RNG.randrange(18); source = RNG.randrange(n)
-        edges = [(RNG.randrange(n), RNG.randrange(n), RNG.randint(-5, 8)) for _ in range(m)]
-        inf = 10**30
-        distance = [[inf]*n for _ in range(n)]
-        for i in range(n): distance[i][i] = 0
-        for u,v,w in edges: distance[u][v] = min(distance[u][v], w)
-        for k in range(n):
-            for i in range(n):
-                for j in range(n):
-                    if distance[i][k] < inf and distance[k][j] < inf:
-                        distance[i][j] = min(distance[i][j], distance[i][k]+distance[k][j])
-        expected = []
-        for v in range(n):
-            bad = any(distance[source][k] < inf and distance[k][k] < 0 and distance[k][v] < inf for k in range(n))
-            expected.append("-INF" if bad else "INF" if distance[source][v] == inf else str(distance[source][v]))
-        check("Negative_Weight_Shortest_Paths/Bellman_Ford",
-              f"{n} {m} {source+1}\n"+rows([(u+1,v+1,w) for u,v,w in edges]), flat(expected))
     for _ in range(50):
         l, r = RNG.randint(1,6), RNG.randint(1,6)
         edges = [(u,v) for u in range(l) for v in range(r) if RNG.randrange(3) == 0]
@@ -166,20 +95,8 @@ def graph_checks():
         size = out[pos+1]; left = set(v-1 for v in out[pos+2:pos+2+size]); pos += 2+size
         size = out[pos]; right = set(v-1 for v in out[pos+1:pos+1+size])
         assert len(left)+len(right) == expected and all(u in left or v in right for u,v in edges)
-    for _ in range(35):
-        n = RNG.randint(1,30)
-        edges = [(i,RNG.randrange(i),RNG.randrange(1000001)) for i in range(1,n)]
-        adj = [[] for _ in range(n)]
-        for u,v,w in edges: adj[u].append((v,w)); adj[v].append((u,w))
-        ans = []
-        for start in range(n):
-            distance = {start:0}; queue = [start]
-            for u in queue:
-                for v,w in adj[u]:
-                    if v not in distance: distance[v]=distance[u]+w; queue.append(v)
-            ans.append(sum(distance.values()))
-        check("Rerooting/Distance_Sums", f"{n}\n"+rows([(u+1,v+1,w) for u,v,w in edges]), flat(ans))
-    print("Graphs/trees: brute cuts, cycles, matching, paths and distance sums passed.", flush=True)
+    print("Hopcroft-Karp: brute matching and minimum vertex cover passed.", flush=True)
+
 
 def range_checks():
     for _ in range(35):
@@ -190,13 +107,6 @@ def range_checks():
             operations.append((l+1,r+1,x))
             for j in range(l,r+1): b[j]+=x
         check("Difference_Arrays/One_Dimensional", f"{n} 50\n"+flat(a)+"\n"+rows(operations),flat(b))
-        r,c=RNG.randint(1,8),RNG.randint(1,8); grid=[[0]*c for _ in range(r)]; ops=[]
-        for _ in range(20):
-            r1=RNG.randrange(r); r2=RNG.randrange(r1,r); c1=RNG.randrange(c); c2=RNG.randrange(c1,c); x=RNG.randint(-9,9)
-            ops.append((r1+1,c1+1,r2+1,c2+1,x))
-            for i in range(r1,r2+1):
-                for j in range(c1,c2+1): grid[i][j]+=x
-        check("Difference_Arrays/Two_Dimensional",f"{r} {c} 20\n"+rows(ops),rows(grid))
         ops=[]; b=a[:]; expected=[]
         for _ in range(60):
             if RNG.randrange(2):
@@ -204,10 +114,6 @@ def range_checks():
             else:
                 l=RNG.randrange(n); r=RNG.randrange(l,n); ops.append((2,l+1,r+1)); expected.append(sum(b[l:r+1]))
         check("Sqrt_Decomposition/Point_Set_Range_Sum", f"{n} 60\n"+flat(a)+"\n"+rows(ops),flat(expected))
-        intervals=[]; expected=[]
-        for _ in range(40):
-            l=RNG.randrange(n); r=RNG.randrange(l,n); intervals.append((l+1,r+1)); expected.append(len(set(a[l:r+1])))
-        check("Mo_Algorithm/Distinct_Values",f"{n} 40\n"+flat(a)+"\n"+rows(intervals),flat(expected))
         upper=RNG.choice([1,100,10**18]); values={};ops=[];expected=[]
         for _ in range(80):
             if RNG.randrange(2):
@@ -240,19 +146,6 @@ def range_checks():
         assert out == [root]+[x for i in range(1,n+1) for x in (parent[i],left[i],right[i])]
     print("Range structures: naive array/dictionary/sequence oracles passed.",flush=True)
 
-def grid_checks():
-    for _ in range(30):
-        r,c=RNG.randint(1,3),RNG.randint(1,3)
-        board=["".join(RNG.choice("abc") for _ in range(c)) for _ in range(r)]
-        words=["".join(RNG.choice("abc") for _ in range(RNG.randint(1,7))) for _ in range(30)]
-        def found(word):
-            def search(i,j,pos,used):
-                if not (0<=i<r and 0<=j<c) or (i,j) in used or board[i][j]!=word[pos]:return False
-                if pos+1==len(word):return True
-                return any(search(i+di,j+dj,pos+1,used|{(i,j)}) for di,dj in [(1,0),(-1,0),(0,1),(0,-1)])
-            return any(search(i,j,0,set()) for i in range(r) for j in range(c))
-        check("Grid_Word_Search/Trie_Search",f"{r} {c} 30\n"+"\n".join(board+words)+"\n",sum(found(w) for w in set(words)))
-    print("Grid search: independent per-word DFS passed.",flush=True)
 
 def phi(n):
     return sum(math.gcd(i,n)==1 for i in range(1,n+1))
@@ -277,10 +170,6 @@ def math_checks():
         sol=[x for x in range(m) if (a*x-b)%m==0]
         expected.append("NONE" if not sol else f"{sol[0]} {m//len(sol)} {len(sol)}")
     check("Cancellation_Law/Linear_Congruence",f"{len(equations)}\n"+rows(equations),"\n".join(expected))
-    nums=list(range(1500))+[341550071728321,3825123056546413051,2**64-1,18446744073709551557]
-    expected=[str("YES" if n>=2 and all(n%d for d in range(2,math.isqrt(n)+1)) else "NO") for n in nums[:1500]]
-    expected+=["NO","NO","NO","YES"]
-    check("Miller_Rabin/Unsigned_64_Bit",f"{len(nums)}\n"+"\n".join(map(str,nums))+"\n",flat(expected))
     for _ in range(30):
         n,m=RNG.randint(1,100),RNG.randint(1,100)
         check("Mobius_Function/Coprime_Pairs",f"{n} {m}\n",sum(math.gcd(i,j)==1 for i in range(1,n+1) for j in range(1,m+1)))
@@ -411,14 +300,6 @@ def transform_checks():
 def large_structure_checks():
     # Check the claimed depth/storage limits, which small random cases cannot.
     n = 200000
-    chain = f"{n} {n-1}\n" + rows((i, i+1) for i in range(1, n))
-    check("Bridges/Low_Link", chain, f"{n-1}\n" + flat(range(1, n)))
-    check("Articulation_Points/Low_Link", chain, f"{n-2}\n" + flat(range(2, n)))
-    check("Biconnected_Components/Edge_Blocks", chain,
-          f"{n-1}\n" + rows((1, i) for i in range(1, n)))
-    check("Rerooting/Distance_Sums",
-          f"{n}\n" + rows((i, i+1, 1000000) for i in range(1, n)),
-          flat(1000000 * (i*(i-1)//2 + (n-i)*(n-i+1)//2) for i in range(1, n+1)))
     total = n*(n+1)//2
     check("Treap/Implicit_Treap", f"{n} 7\n" + flat(range(1, n+1)) +
           f"\n4 1 {n}\n3 1 {n}\n4 1 3\n1 1 -1000000000\n2 {n+1}\n4 1 {n}\n4 {n} {n}\n",
@@ -428,7 +309,7 @@ def large_structure_checks():
           f"1000000000000000000 {q}\n" +
           rows((1, i*10**13, 10**9) for i in range(1, q)) +
           "2 1 1000000000000000000\n", (q-1)*10**9)
-    print("Large structures: 200000-node chains/treap and 50000 sparse-tree operations passed.",
+    print("Large structures: 200000-value treap and 50000 sparse-tree operations passed.",
           flush=True)
 
 def main():
@@ -437,7 +318,7 @@ def main():
     args=parser.parse_args()
     if not args.skip_compile:compile_all()
     samples()
-    for fn in (graph_checks,range_checks,grid_checks,math_checks,matrix_checks,geometry_dp_checks,transform_checks,large_structure_checks):fn()
+    for fn in (graph_checks,range_checks,math_checks,matrix_checks,geometry_dp_checks,transform_checks,large_structure_checks):fn()
     print(f"PASS: {len(FILES)} programs; {RUNS} full-program checks; seed 20261021.",flush=True)
 
 if __name__=="__main__":main()

@@ -1,99 +1,92 @@
-/*
-Problem: print IDs of edges whose removal increases the number of components.
-Input: n m, then m undirected edges u v. Vertex and edge IDs are 1-based.
-Limits: 1 <= n <= 200000, 0 <= m <= 300000. Parallel edges allowed; no self-loops.
-Output: count, then sorted IDs on the next line (empty if none).
-
-Sample input:
-4 4
-1 2
-2 3
-3 1
-3 4
-Sample output:
-1
-4
-
-tin[u] is the DFS entry time. low[u] is the earliest entry reachable
-from u's subtree using tree edges and at most one back edge.
-Skip the PARENT EDGE ID, not every edge to the parent: parallel edges matter.
-A tree edge p->u is a bridge if low[u] > tin[p].
-The explicit DFS stack avoids recursion overflow. Disconnected graphs work.
-Time O(n+m); memory O(n+m).
-*/
+// Given an undirected graph with n nodes and m edges,
+// print bridges.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 
 using namespace std;
+using namespace __gnu_pbds;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
+
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
+
+int dx[16] = { 0, 1, 0, -1, -1, 1, 1, -1, -1, -1, +1, +1, -2, -2, +2, +2 };
+int dy[16] = { 1, 0, -1, 0, 1, 1, -1, -1, -2, +2, -2, +2, -1, +1, -1, +1 };
 
 void Solve() {
-  int n, m;
-  cin >> n >> m;
-  vector<vector<pair<int, int>>> graph(n + 1);
-  for (int id = 1; id <= m; ++id) {
-    int u, v;
-    cin >> u >> v;
-    graph[u].push_back({v, id});
-    graph[v].push_back({u, id});
-  }
-  vector<int> tin(n + 1), low(n + 1), parent(n + 1), parentEdge(n + 1); // tin = time in (DFS entry time).
-  vector<int> next(n + 1);
-  vector<bool> bridge(m + 1, false);
-  int timer = 0;
-  for (int root = 1; root <= n; ++root) {
-    if (tin[root]) continue;
-    vector<int> stack = {root};
-    tin[root] = low[root] = ++timer;
-    while (!stack.empty()) {
-      int u = stack.back();
-      if (next[u] < (int)graph[u].size()) {
-        auto [v, id] = graph[u][next[u]++];
-        if (id == parentEdge[u]) continue;
-        if (!tin[v]) {
-          parent[v] = u;
-          parentEdge[v] = id;
-          tin[v] = low[v] = ++timer;
-          stack.push_back(v);
-        } else if (tin[v] < tin[u]) {
-          low[u] = min(low[u], tin[v]);
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> adjList(n + 1);
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        cin >> u >> v;
+
+        adjList[u].push_back(v);
+        adjList[v].push_back(u);
+    }
+
+    vector<bool> vis(n + 1);
+    vector<int> discoveryTime(n + 1), lowestTime(n + 1);
+    int curTime = 0;
+    vector<array<int, 2>> bridges;
+
+    function<void(int, int)> bridgesDFS = [&](int curNode, int prevNode) -> void {
+        vis[curNode] = true;
+        discoveryTime[curNode] = lowestTime[curNode] = curTime++;
+
+        bool skippedParent = false;
+        for (int nextNode : adjList[curNode]) {
+            if (nextNode == prevNode and !skippedParent) {
+                skippedParent = true;
+                continue;
+            }
+
+            if (!vis[nextNode]) {
+                bridgesDFS(nextNode, curNode);
+
+                lowestTime[curNode] = min(lowestTime[curNode], lowestTime[nextNode]);
+
+                if (discoveryTime[curNode] < lowestTime[nextNode]) {
+                    bridges.push_back({ curNode, nextNode });
+                }
+            }
+
+            else {
+                lowestTime[curNode] = min(lowestTime[curNode], discoveryTime[nextNode]);
+            }
         }
-      } else {
-        stack.pop_back();
-        int p = parent[u];
-        if (p == 0) continue;
-        low[p] = min(low[p], low[u]);
-        if (low[u] > tin[p]) bridge[parentEdge[u]] = true;
-      }
+        };
+
+    for (int i = 1; i <= n; ++i) {
+        if (!vis[i]) {
+            bridgesDFS(i, 0);
+        }
     }
-  }
-  cout << count(bridge.begin(), bridge.end(), true) << endl;
-  bool first = true;
-  for (int id = 1; id <= m; ++id) {
-    if (bridge[id]) {
-      if (!first) cout << ' ';
-      cout << id;
-      first = false;
+
+    for (auto bridge : bridges) {
+        cout << bridge[0] << ' ' << bridge[1] << endl;
     }
-  }
-  cout << endl;
 }
 
 int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+    int t = 1;
+    // cin >> t;
+    for (int i = 1; i <= t; ++i) {
+        Solve();
+    }
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+    cerr << "Basel Al-Jabari." << endl;
+
+    return 0;
 }

@@ -1,31 +1,4 @@
-/*
-Problem: test whether each unsigned 64-bit integer is prime.
-Input: q then q values n in [0,18446744073709551615]. q<=10000.
-Output YES or NO per value.
-
-Sample input:
-5
-0
-2
-341
-1000000007
-18446744073709551615
-Sample output:
-NO
-YES
-NO
-YES
-NO
-
-Write n-1=d*2^s with d odd. For a prime, each chosen base a must satisfy
-a^d=1, or repeated squaring must reach -1 modulo n.
-A failed base proves composite. This exact seven-base set is deterministic
-for ALL unsigned 64-bit inputs; arbitrary few small bases are not equivalent.
-Time O(log n) for this fixed base set; extra memory O(1).
-Use unsigned __int128 for multiplication: signed __int128 may overflow near
-2^64. Small numbers and even composites need separate handling.
-This tests primality; it does not factor a composite number.
-*/
+// Given a number n, output YES if it is prime, NO otherwise.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
@@ -34,50 +7,57 @@ This tests primality; it does not factor a composite number.
 using namespace std;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
+#define ull unsigned long long
 
 void Solve() {
-  using ull = unsigned long long; // ull = unsigned long long.
-  auto Multiply = [&](ull a, ull b, ull mod) { // mod = modulus.
-    return (ull)((unsigned __int128)a * b % mod);
+  ull n;
+  cin >> n;
+
+  function<ull(ull, ull, ull)> Mul = [&](ull num1, ull num2, ull MOD) -> ull {
+    return (unsigned __int128)num1 * num2 % MOD;
   };
-  auto Power = [&](ull a, ull e, ull mod) { // mod = modulus.
-    ull answer = 1;
-    while (e) {
-      if (e & 1) answer = Multiply(answer, a, mod);
-      a = Multiply(a, a, mod);
-      e >>= 1;
-    }
-    return answer;
-  };
-  auto Is_Prime = [&](ull n) {
-    if (n < 2) return false;
-    if (n % 2 == 0) return n == 2;
-    ull d = n - 1;
-    int s = 0;
-    while (d % 2 == 0) { d /= 2; ++s; }
-    ull bases[7] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022};
-    for (int i = 0; i < 7; ++i) {
-      ull a = bases[i] % n;
-      if (a == 0) continue;
-      ull x = Power(a, d, n);
-      if (x == 1 or x == n - 1) continue;
-      bool passed = false;
-      for (int j = 1; j < s; ++j) {
-        x = Multiply(x, x, n);
-        if (x == n - 1) { passed = true; break; }
+
+  function<ull(ull, ull, ull)> Power = [&](ull n, ull p, ull MOD) -> ull {
+    ull ans = 1, temp = n;
+    while (p) {
+      if (p & 1) {
+        ans = Mul(ans, temp, MOD);
       }
-      if (!passed) return false;
+
+      temp = Mul(temp, temp, MOD);
+      p >>= 1;
     }
+
+    return ans;
+  };
+
+  vector<ull> a = {2, 325, 9375, 28178, 450775, 9780504, 1795265022};
+
+  function<bool(ull)> Rabin_Miller = [&](ull n) -> bool {
+    if (n < 2 or n % 6 % 4 != 1) {
+      return n - 2 < 2;
+    }
+
+    ull trailingZeroes = __builtin_ctzll(n - 1);
+    ull d = (n - 1) >> trailingZeroes;
+
+    for (int i = 0; i < a.size(); ++i) {
+      ull p = Power(a[i], d, n), j = trailingZeroes;
+
+      while (p != 1 and p != n - 1 and a[i] % n and j--) {
+        p = Mul(p, p, n);
+      }
+
+      if (p != n - 1 and j != trailingZeroes) {
+        return false;
+      }
+    }
+
     return true;
   };
-  int q;
-  cin >> q;
-  for (int i = 1; i <= q; ++i) {
-    ull n;
-    cin >> n;
-    cout << (Is_Prime(n) ? "YES" : "NO") << endl;
-  }
+
+  cout << (Rabin_Miller(n) ? "YES" : "NO") << endl;
 }
 
 int32_t main() {
@@ -92,5 +72,6 @@ int32_t main() {
   }
 
   cerr << "Basel Al-Jabari." << endl;
+
   return 0;
 }

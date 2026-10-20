@@ -1,80 +1,126 @@
-/*
-Problem: for every vertex, print the sum of weighted distances to all vertices.
-Input: n, then n-1 lines u v w describing a connected tree. Vertices are 1-based.
-Output n sums in vertex order. Limits: 1 <= n <= 200000, 0 <= w <= 10^6.
-
-Sample input:
-3
-1 2 2
-2 3 3
-Sample output:
-7 5 8
-
-First root at 1. Compute subtree sizes and the distance sum for root 1.
-Moving the root across edge u->v of weight w makes size[v] vertices w closer
-and the other n-size[v] vertices w farther:
-answer[v] = answer[u] + (n - 2*size[v])*w.
-This example shows rerooting: reuse a parent's answer to get a child's.
-Other tree DPs need their own merge/remove formulas; this is not universal.
-Time O(n); memory O(n). Traversal is iterative. Sums fit ll under these limits.
-*/
+// Given a tree with n nodes, and n - 1 edges (1-base index).
+// Find the sum of distances from any root to the other nodes.
+// https://leetcode.com/problems/sum-of-distances-in-tree/submissions/1461129850/
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace __gnu_pbds;
+using namespace chrono;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
-void Solve() {
-  int n;
-  cin >> n;
-  vector<vector<pair<int, ll>>> tree(n + 1);
-  for (int i = 1; i < n; ++i) {
-    int u, v;
-    ll w;
-    cin >> u >> v >> w;
-    tree[u].push_back({v, w});
-    tree[v].push_back({u, w});
-  }
-  vector<int> parent(n + 1), size(n + 1, 1), order = {1};
-  vector<ll> distance(n + 1), parentWeight(n + 1), answer(n + 1);
-  for (int i = 0; i < (int)order.size(); ++i) {
-    int u = order[i];
-    for (int j = 0; j < (int)tree[u].size(); ++j) {
-      auto [v, w] = tree[u][j];
-      if (v == parent[u]) continue;
-      parent[v] = u;
-      parentWeight[v] = w;
-      distance[v] = distance[u] + w;
-      order.push_back(v);
-    }
-  }
-  for (int u = 1; u <= n; ++u) answer[1] += distance[u];
-  for (int i = n - 1; i >= 1; --i) {
-    int u = order[i];
-    size[parent[u]] += size[u];
-  }
-  for (int i = 1; i < n; ++i) {
-    int v = order[i];
-    answer[v] = answer[parent[v]] + (n - 2LL * size[v]) * parentWeight[v];
-  }
-  for (int u = 1; u <= n; ++u) cout << answer[u] << (u == n ? '\n' : ' ');
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
+
+mt19937 rng(high_resolution_clock::now().time_since_epoch().count());
+
+int dx[8] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
+
+vector<vector<int>> g;
+vector<ll> sum, ans;
+vector<int> sz;
+
+// sum[current] represents the sum of all possible subtrees that are in the subtree of current.
+// sz[current] represents the size of the subtree of node current.
+void dfs1(int node, int par)
+{
+	for (auto c : g[node])
+		if (c != par)
+		{
+			dfs1(c, node);
+			sz[node] += sz[c];
+			sum[node] += sum[c];
+		}
+
+	sum[node] += sz[node];
 }
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+// In this question, the distance between the root node and any other node (current) equals:
+// The number of all subtrees that current node is in it - 1
+// (To exclude the subtree that is rooted at the current root node).
+void dfs2(int node, int par)
+{
+	// sum[node] - sz[node] will return the sum of all the appearance times of each node
+	// in every possible subtree that are in the subtree of the current root node
+	// except the main subtree that is rooted at the current root node.
+	ans[node] = sum[node] - sz[node];
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+	for (auto c : g[node])
+		if (c != par)
+		{
+			// Removed c from the subtree of node (as it is the old root).
+			sum[node] -= sum[c];
+			sum[node] -= sz[c];
+			sz[node] -= sz[c];
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+			// Added node to the subtree of c (as it is the new root).
+			sum[c] += sum[node];
+			sum[c] += sz[node];
+			sz[c] += sz[node];
+
+			dfs2(c, node);
+
+			// Remove node from the subtree of c (as it is the old root).
+			sum[c] -= sum[node];
+			sum[c] -= sz[node];
+			sz[c] -= sz[node];
+
+			// Added c to the subtree of node (as it is the new root).
+			sum[node] += sum[c];
+			sum[node] += sz[c];
+			sz[node] += sz[c];
+		}
+}
+
+void Solve()
+{
+	int n;
+	cin >> n;
+
+	g.assign(n + 1, {});
+	sum.assign(n + 1, 0);
+	sz.assign(n + 1, 1);
+	ans.assign(n + 1, 0);
+
+	for (int i = 0; i < n - 1; ++i)
+	{
+		int x, y;
+		cin >> x >> y;
+
+		g[x].push_back(y);
+		g[y].push_back(x);
+	}
+
+	dfs1(1, 0);
+	dfs2(1, 0);
+
+	for (int i = 1; i <= n; ++i)
+		cout << ans[i] << ' ';
+	cout << endl;
+}
+
+int32_t main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+
+#ifndef ONLINE_JUDGE
+	freopen("C:\\Sublime\\input.txt", "r", stdin);
+	freopen("C:\\Sublime\\output.txt", "w", stdout);
+#endif
+
+	Solve();
+
+	cerr << "Basel Al-Jabari." << endl;
+
+	return 0;
 }

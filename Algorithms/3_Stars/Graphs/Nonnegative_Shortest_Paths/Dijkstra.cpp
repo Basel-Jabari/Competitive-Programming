@@ -1,87 +1,97 @@
-/*
-Problem: find minimum distances from s in a directed weighted graph.
-Input: n m s, then m lines u v w (edge u -> v). Vertices are 1-based.
-Output: n distances in vertex order; -1 means unreachable.
-Limits: 1 <= n <= 200000; 0 <= m <= 300000; 0 <= w <= 1e9.
-Sample input:
-4 4 1
-1 2 7
-1 3 2
-3 2 1
-2 4 4
-Sample output:
-0 3 2 7
-Use Dijkstra only when ALL edge weights are nonnegative.
-The min-heap chooses the smallest pending distance.
-An older heap entry may remain after a better path is found: skip it.
-Time: O(n + m * log(m + 2)) with this lazy heap (parallel edges allowed).
-Memory: O(n + m). A simple shortest path costs at most (n-1)*1e9.
-Both heap distances and answers must be long long.
-*/
+// Given a weighted connected undirected graph with n nodes, and m edges (1-base index).
+// Output the shortest path from the node 1 to the other nodes.
+// There's no negative weights.
+
+// Note: If there's any negative weight in an undirected graph, automatically the answer will be IMPOSSIBLE (No solution).
+// But if there's a negative weight in a directed graph, then if there's a negative cycle then the answer will be -IMPOSSIBLE (No solution).
+// Else we use Bellman Ford's Algorithm, or Floyd Warshall's Algorithm to find the answer.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace __gnu_pbds;
+using namespace chrono;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
-const ll INF = (1LL << 62); // INF = infinity (a large marker value).
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
 
-vector<ll> Dijkstra(const vector<vector<pair<int, ll>>> &graph, int source) {
-  vector<ll> distance(graph.size(), INF);
-  priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<pair<ll, int>>> pq; // pq = priority queue.
-  distance[source] = 0;
-  pq.push({0, source});
+mt19937 rng(high_resolution_clock::now().time_since_epoch().count());
 
-  while (!pq.empty()) {
-    auto [current, u] = pq.top();
-    pq.pop();
-    if (current != distance[u]) {
-      continue;
-    }
-    for (int index1 = 0; index1 < (int)graph[u].size(); ++index1) {
-      auto [v, weight] = graph[u][index1];
-      if (distance[v] > current + weight) {
-        distance[v] = current + weight;
-        pq.push({distance[v], v});
-      }
-    }
-  }
-  return distance;
+int dx[8] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
+
+vector<vector<pair<int, int>>> g;
+vector<ll> dist;
+
+void Solve()
+{
+	int n, m;
+	cin >> n >> m;
+
+	g.assign(n + 1, {});
+	dist.assign(n + 1, LLONG_MAX);
+
+	for (int i = 0; i < m; ++i)
+	{
+		int x, y, w;
+		cin >> x >> y >> w;
+
+		g[x].push_back(make_pair(y, w));
+		g[y].push_back(make_pair(x, w));
+	}
+
+	// Start from node 1.
+	// Why set instead of priority queue?
+	// Because the set gives us the opportunity to erase the unneeded edges.
+	set<pair<ll, int>> dijk;
+	dijk.insert(make_pair(0, 1)); // Weight 0, Node 1.
+	dist[1] = 0;
+	while (dijk.size())
+	{
+		ll current = dijk.begin()->first;
+		int node = dijk.begin()->second;
+		dijk.erase(dijk.begin());
+
+		for (auto [c, w] : g[node])
+			if (current + w < dist[c])
+			{
+				auto temp = dijk.find(make_pair(dist[c], c));
+				if (temp != dijk.end())
+					dijk.erase(temp);
+
+				dist[c] = current + w;
+				dijk.insert(make_pair(dist[c], c));
+			}
+	}
+
+	// The shortest path between node 1 and the other nodes.
+	for (int i = 2; i <= n; ++i)
+		cout << dist[i] << ' ';
+	cout << endl;
 }
 
-void Solve() {
-  int n, m, s;
-  cin >> n >> m >> s;
-  vector<vector<pair<int, ll>>> graph(n + 1);
-  for (int edgeIndex = 1; edgeIndex <= m; ++edgeIndex) {
-    int u, v;
-    ll weight;
-    cin >> u >> v >> weight;
-    graph[u].push_back({v, weight});
-    /* For an undirected graph, also add graph[v].push_back({u, weight}). */
-  }
-  vector<ll> distance = Dijkstra(graph, s);
-  for (int i = 1; i <= n; ++i) {
-    cout << (distance[i] == INF ? -1 : distance[i]);
-    cout << (i == n ? '\n' : ' ');
-  }
-}
+int32_t main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+#ifndef ONLINE_JUDGE
+	freopen("C:\\Sublime\\input.txt", "r", stdin);
+	freopen("C:\\Sublime\\output.txt", "w", stdout);
+#endif
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+	Solve();
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+	cerr << "Basel Al-Jabari." << endl;
+
+	return 0;
 }

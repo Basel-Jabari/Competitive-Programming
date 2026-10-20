@@ -1,0 +1,286 @@
+--- archive/Graph_Theory/Shortest_Path/Dijkstra_Algorithm.cpp
++++ Algorithms/3_Stars/Graphs/Nonnegative_Shortest_Paths/Dijkstra.cpp
+@@ -51,12 +51,13 @@
+ 	// Start from node 1.
+ 	// Why set instead of priority queue?
+ 	// Because the set gives us the opportunity to erase the unneeded edges.
+-	set<pair<int, int>> dijk;
++	set<pair<ll, int>> dijk;
+ 	dijk.insert(make_pair(0, 1)); // Weight 0, Node 1.
+-	dist[1] = INT_MIN;
++	dist[1] = 0;
+ 	while (dijk.size())
+ 	{
+-		int current = dijk.begin()->first, node = dijk.begin()->second;
++		ll current = dijk.begin()->first;
++		int node = dijk.begin()->second;
+ 		dijk.erase(dijk.begin());
+ 
+ 		for (auto [c, w] : g[node])
+--- archive/Graph_Theory/Shortest_Path/Floyd_Warshall_Algorithm.cpp
++++ Algorithms/3_Stars/Graphs/All_Pairs_Shortest_Paths/Floyd_Warshall.cpp
+@@ -44,18 +44,18 @@
+ 		int x, y, w;
+ 		cin >> x >> y >> w;
+ 
+-		dist[x][y] = w;
++		dist[x][y] = min(dist[x][y], (ll)w);
+ 	}
+ 
+ 	for (int k = 1; k <= n; ++k)
+ 		for (int i = 1; i <= n; ++i)
+ 			for (int j = 1; j <= n; ++j)
+ 				if (dist[i][k] != LLONG_MAX and dist[k][j] != LLONG_MAX)
+-					dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
++					dist[i][j] = min(dist[i][j], (ll)max((__int128)LLONG_MIN, (__int128)dist[i][k] + dist[k][j]));
+ 
+ 	bool neg_cycle = false;
+ 	for (int i = 1; i <= n; ++i)
+-		if (dist[i][i])
++		if (dist[i][i] < 0)
+ 			neg_cycle = true;
+ 
+ 	if (neg_cycle)
+--- archive/Graph_Theory/Spanning_Trees/Kruskal_Algorithm.cpp
++++ Algorithms/3_Stars/Graphs/Minimum_Spanning_Tree/Kruskal.cpp
+@@ -68,7 +68,7 @@
+ 
+ 	sort(g.begin(), g.end(), cmp);
+ 
+-	int ans = 0;
++	ll ans = 0;
+ 	for (int i = 0; i < m; ++i)
+ 	{
+ 		int x = g[i][0], y = g[i][1], w = g[i][2];
+--- archive/Graph_Theory/Spanning_Trees/Prim_Algorithm.cpp
++++ Algorithms/3_Stars/Graphs/Minimum_Spanning_Tree/Prim.cpp
+@@ -46,7 +46,7 @@
+ 	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
+ 	q.push(make_pair(0, 1));
+ 
+-	int ans = 0;
++	ll ans = 0;
+ 	while (q.size())
+ 	{
+ 		int current = q.top().first, node = q.top().second;
+--- archive/Graph_Theory/Lowest_Common_Ancestor/Binary_Lifting.cpp
++++ Algorithms/3_Stars/Trees/Lowest_Common_Ancestor/Binary_Lifting.cpp
+@@ -50,14 +50,8 @@
+ 
+ 	int delta = lvl[a] - lvl[b];
+ 
+-	// Why from 31 not from 0?
+-	// To reach a specific number, we always start with MSB, not LSB.
+-	// If we start with LSB, it will be wrong.
+-	// For example: 16.
+-	// If we start from LSB --> 01111 = 15 and we will never reach 16.
+-	// If we start from MSB --> 10000 = 16 and we will always reach 16.
+-	// Sometimes, starting from LSB or MSB will be correct.
+-	// Such as the numbers with only ones like: 1, 3, 7, 15, 31. ((2 ^ n) - 1).
++	// For this fixed delta, either bit order works.
++	// The second loop below uses descending jumps to stay below the LCA.
+ 	for (int i = 31; i >= 0; --i)
+ 		if ((delta >> i) & 1)
+ 			a = anc[a][i];
+--- archive/Graph_Theory/Euler_Tour_3/Fenwick_Tree_On_Tree.cpp
++++ Algorithms/3_Stars/Trees/Subtree_Queries/Euler_Fenwick.cpp
+@@ -52,7 +52,7 @@
+ 		}
+ 	}
+ 
+-	void set(int index, int val)
++	void set(int index, ll val)
+ 	{
+ 		while (index <= n)
+ 		{
+@@ -122,7 +122,7 @@
+ 			int s, x;
+ 			cin >> s >> x;
+ 
+-			int delta = x - a[s];
++			ll delta = (ll)x - a[s];
+ 			a[s] = x;
+ 			tree.set(in[s], delta);
+ 		}
+--- archive/Graph_Theory/Euler_Tour_1/Example.cpp
++++ Algorithms/3_Stars/Trees/Subtree_Queries/Depth_Count.cpp
+@@ -71,6 +71,12 @@
+ 		int u, l;
+ 		cin >> u >> l;
+ 
++		if (l < 0 or l > n)
++		{
++			cout << 0 << endl;
++			continue;
++		}
++
+ 		auto &temp = lvl[l];
+ 		auto left = lower_bound(temp.begin(), temp.end(), tin[u]);
+ 		auto right = lower_bound(temp.begin(), temp.end(), tout[u]);
+--- archive/Range_Queries/No_Data_Structure/2D_Prefix_Sum.cpp
++++ Algorithms/3_Stars/Range_Queries/Prefix_Sums/Two_Dimensional.cpp
+@@ -30,7 +30,7 @@
+       cin >> row[j] >> column[j];
+     }
+ 
+-    int ans = preSum[row[1]][column[1]] - preSum[row[1]][column[0] - 1] - preSum[row[0] - 1][column[1]] + preSum[row[0] - 1][column[0] - 1];
++    ll ans = preSum[row[1]][column[1]] - preSum[row[1]][column[0] - 1] - preSum[row[0] - 1][column[1]] + preSum[row[0] - 1][column[0] - 1];
+     cout << ans << endl;
+   }
+ }
+--- archive/Range_Queries/Fenwick_Tree/1D.cpp
++++ Algorithms/3_Stars/Range_Queries/Fenwick_Tree/Point_Set_Range_Sum.cpp
+@@ -1,7 +1,7 @@
+ // Given n elements, and q queries, there are two types of operations:
+ // 1. Update k-th index to u.
+ // 2. Output the sum from x to y.
+-// x, y, k are 0-base.
++// x, y, k are 1-base.
+ 
+ // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
+ 
+@@ -19,12 +19,12 @@
+ 
+ public:
+   Fenwick_Tree(const vector<int> &a) {
+-    _n = a.size();
++    _n = a.size() - 1;
+     _fenwickTree.assign(_n + 1, 0);
+     Build(a);
+   }
+ 
+-  void Merge(int requiredIndex, int curVal) {
++  void Merge(int requiredIndex, ll curVal) {
+     _fenwickTree[requiredIndex] += curVal;
+   }
+ 
+@@ -39,7 +39,7 @@
+   }
+ 
+   void Update(int requiredIndex, int newVal, vector<int> &a) {
+-    int delta = newVal - a[requiredIndex];
++    ll delta = (ll)newVal - a[requiredIndex];
+     a[requiredIndex] = newVal;
+ 
+     while (requiredIndex <= _n) {
+@@ -51,7 +51,6 @@
+   ll Get(int requiredIndex) {
+     ll ans = 0;
+ 
+-    requiredIndex++;
+     while (requiredIndex) {
+       ans += _fenwickTree[requiredIndex];
+       requiredIndex -= requiredIndex & -requiredIndex;
+--- archive/String_Algorithms/Rabin_Karp/Example.cpp
++++ Algorithms/3_Stars/Strings/String_Hashing/Rabin_Karp.cpp
+@@ -19,6 +19,7 @@
+   }
+ 
+   else {
++    vector<bool> matched(n - m + 1, true);
+     function<ll(int, int)> Rabin_Karp = [&](int BASE, int MOD) -> int {
+       function<ll(char)> Convert = [&](char toConvert) -> ll {
+         return toConvert - 'a' + 1;
+@@ -50,7 +51,8 @@
+       };
+ 
+       ll stringHash = Rolling_Hash(s, 0, m - 1), patternHash = Rolling_Hash(p, 0, m - 1), ans = 0;
+-      if (stringHash == patternHash) {
++      matched[0] = matched[0] and stringHash == patternHash;
++      if (matched[0]) {
+         ans++;
+       }
+ 
+@@ -60,7 +62,8 @@
+         stringHash = (stringHash * baseInverse) % MOD;
+         stringHash = (stringHash + Convert(s[i + m - 1]) * basePower) % MOD;
+ 
+-        if (stringHash == patternHash) {
++        matched[i] = matched[i] and stringHash == patternHash;
++        if (matched[i]) {
+           ans++;
+         }
+       }
+@@ -68,7 +71,8 @@
+       return ans;
+     };
+ 
+-    cout << min(Rabin_Karp(911, 1e9 + 7), Rabin_Karp(3571, 1e9 + 9)) << endl;
++    Rabin_Karp(911, 1e9 + 7);
++    cout << Rabin_Karp(3571, 1e9 + 9) << endl;
+   }
+ }
+ 
+--- archive/Graph_Theory/Bridges/Tarjan_Algorithm.cpp
++++ Algorithms/2_Stars/Graphs/Bridges/Low_Link.cpp
+@@ -41,7 +41,13 @@
+         vis[curNode] = true;
+         discoveryTime[curNode] = lowestTime[curNode] = curTime++;
+ 
++        bool skippedParent = false;
+         for (int nextNode : adjList[curNode]) {
++            if (nextNode == prevNode and !skippedParent) {
++                skippedParent = true;
++                continue;
++            }
++
+             if (!vis[nextNode]) {
+                 bridgesDFS(nextNode, curNode);
+ 
+@@ -52,7 +58,7 @@
+                 }
+             }
+ 
+-            else if (nextNode != prevNode) {
++            else {
+                 lowestTime[curNode] = min(lowestTime[curNode], discoveryTime[nextNode]);
+             }
+         }
+--- archive/Graph_Theory/Re-Rooting_Tree/Example.cpp
++++ Algorithms/2_Stars/Trees/Rerooting/Distance_Sums.cpp
+@@ -25,7 +25,8 @@
+ int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
+ 
+ vector<vector<int>> g;
+-vector<int> sum, sz, ans;
++vector<ll> sum, ans;
++vector<int> sz;
+ 
+ // sum[current] represents the sum of all possible subtrees that are in the subtree of current.
+ // sz[current] represents the size of the subtree of node current.
+--- archive/Temp_Rabin_Miller_Test/Rabin_Miller_Test.cpp
++++ Algorithms/2_Stars/Number_Theory/Miller_Rabin/Unsigned_64_Bit.cpp
+@@ -15,7 +15,7 @@
+   cin >> n;
+ 
+   function<ull(ull, ull, ull)> Mul = [&](ull num1, ull num2, ull MOD) -> ull {
+-    return (__int128)num1 * num2 % MOD;
++    return (unsigned __int128)num1 * num2 % MOD;
+   };
+ 
+   function<ull(ull, ull, ull)> Power = [&](ull n, ull p, ull MOD) -> ull {
+--- archive/Graph_Theory/Biconnected_Components/Tarjan_Algorithm.cpp
++++ Algorithms/1_Star/Graphs/Biconnected_Components/Edge_Blocks.cpp
+@@ -42,7 +42,13 @@
+         vis[curNode] = 1;
+         discoveryTime[curNode] = lowestTime[curNode] = curTime++;
+ 
++        bool skippedParent = false;
+         for (int nextNode : adjList[curNode]) {
++            if (nextNode == prevNode and !skippedParent) {
++                skippedParent = true;
++                continue;
++            }
++
+             if (!vis[nextNode]) {
+                 curEdges.push({ curNode, nextNode });
+                 sccDFS(nextNode, curNode);
+@@ -63,7 +69,7 @@
+                 }
+             }
+ 
+-            else if (nextNode != prevNode and discoveryTime[nextNode] < discoveryTime[curNode]) {
++            else if (discoveryTime[nextNode] < discoveryTime[curNode]) {
+                 curEdges.push({ curNode, nextNode });
+                 lowestTime[curNode] = min(lowestTime[curNode], discoveryTime[nextNode]);
+             }

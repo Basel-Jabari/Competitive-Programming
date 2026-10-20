@@ -1,108 +1,89 @@
-PPU TEMPLATE VALIDATION
+NDP-PROBLEM TEMPLATE VALIDATION
+Basel Al-Jabari
 Date: 2026-10-20
 
-75 standalone GNU C++17 programs across 62 topics.
-All 75 compiled without warnings.
-3,719 full-program checks passed across the suites below.
-Changed files were recompiled and their affected checks rerun after final edits.
-This count does not count those repeated checks twice.
+75 GNU C++17 programs across 62 topics.
+27 original implementations restored; 48 other programs unchanged.
+Hopcroft-Karp is one of the unchanged programs by explicit request.
 
-Group                          Files   Program runs
-Three-star graphs and trees        14          1,069
-Three-star ranges and strings       9            282
-Three-star math and matrices       11            379
-Three-star geometry/ordered sets    3            458
-Migrated subtree depth example      1             82
-Two-star and one-star programs     36          1,334
-Tree-path Mo (Permutate Paths)      1            115
-TOTAL                             75          3,719
+CURRENT RESTORATION CHECKS
+Suite                              Files    Executions
+restored_checks.py                    27         1543
+graph_tree_checks.py                   3          163
+range_string_checks.py                 3           87
+remaining_checks.py                   27         1000
+Total rerun this revision             60         2793
 
-Checks include:
-- Every sample printed at the top of a template.
-- Seeded random inputs compared with independent simpler solutions.
-- Disconnected graphs, parallel edges, negative cycles, empty structures,
-  and invalid ordered-set ranks. Self-loops where the contract allows them.
-- Brute-force spanning trees, cuts, bridges, articulation points, edge blocks,
-  matching, vertex cover, and all-source distance sums.
-- 200,000-vertex chains for iterative graph/tree methods, and a 200,000-value
-  treap build followed by reversal, insertion, deletion, and sum queries.
-- Dinic's stated maximum depth of 500 vertices.
-- Naive arrays/sequences for range queries, lazy assignments/adds, reversals,
-  difference arrays, Mo, sqrt decomposition, and Cartesian tree shape.
-- Subtree depth counts against direct ancestor walks, including another root.
-- Tree-path Mo against direct BFS paths and positive missing-value search:
-  the supplied Permutate Paths sample, random trees, duplicates, large values,
-  missing-value block boundaries, same-node paths, and both endpoint orders.
-  Also 100,000-node chains/stars and a chain with 100,000 random path queries.
-- 50,000 sparse segment-tree operations with a coordinate limit of 10^18.
-- Overlapping matches, substring comparisons, tries, duplicate order
-  statistics, and independent word-by-word grid search.
-- Sieve bounds up to 10^7; modular arithmetic near 10^18; huge decimal
-  exponents; generalized CRT; direct gcd-based totient and Mobius checks.
-- Full unsigned-64-bit Miller-Rabin boundary cases and known pseudoprimes.
-- Exact integer combinatorics, distribution DP, Fibonacci recurrence,
-  Lucas digits, and rational references for both Bernoulli definitions.
-- Rectangular matrix products, step-by-step walks, repeated power sums,
-  and ordered range products with updates.
-- Hulls against gift wrapping; closest pair against all pairs;
-  projection, reflection, rotation, and triangle area examples.
-- CHT and Li Chao DP answers against a quadratic reference.
-- FFT against integer convolution, including the stated maximum input bound.
-- NTT against modular convolution for all six listed moduli. Independent
-  checks of primality, primitive roots, and maximum power-of-two root orders.
-- XOR, AND, OR transforms against direct bitwise convolution.
+The remaining 15 unchanged programs retain their earlier passing checks:
+math_checks.py                        11          379
+geometry_ordered_checks.py             3          458
+mo_tree_checks.py                      1          115
+These 952 executions were not repeated in this restoration revision.
+Together the suites cover all 75 programs with no duplicate file ownership.
 
-Input generators use fixed seeds:
-20261020 for the three-star suites; 20261021 for remaining_checks.py;
-20261022 for mo_tree_checks.py.
-Double hashing uses the original fixed bases 911 and 3571; the treap
-chooses random priorities. These checks do not remove hash-collision risk
-or the treap's worst-case height.
-FFT uses floating point; its file explains precision and the exact NTT option.
-Checks support the stated input limits. No online-judge submissions were made.
+The restored code compiles with 14 preserved warnings: sign comparisons,
+shadowed names, and the original nested if/else layout. These are recorded
+in build/restored/*.warnings.txt; they are not compilation errors.
+Newly added files compiled by the updated suites remain warning-free.
+No online-judge acceptance is claimed.
 
-CONSTANTS FOLLOW-UP (2026-10-20)
-Restored double-hash bases 911 and 3571 with moduli 1000000007 and
-1000000009. Recompiled without warnings; 31 runs checked 9,004 substring
-comparisons against exact string equality. Miller-Rabin's seven bases
-already matched the archived original and were left unchanged.
+RESTORATION EVIDENCE
+- original_sources.py compares all 27 files with the recovery ZIP plus
+  explicit, reviewable correctness corrections. See RESTORATION_BUG_FIXES.patch.
+- All 27 original-contract examples pass.
+- Shortest paths use independent all-pairs distances and negative-cycle tests.
+- MST uses an independent cut-growing oracle; SCC uses mutual reachability.
+- Flow is checked by enumerating every source/sink cut on small graphs.
+- Bridges and articulation points use direct removal/component counting.
+- Edge blocks use simple-cycle equivalence, plus a parallel-edge regression.
+- Tree queries use direct ancestor walks; subtree sums use direct summation.
+- Rerooting uses all-vertex distances, including a 70,000-node path whose
+  endpoint sum exceeds int. The Windows depth test reserves a 128 MiB stack;
+  this does not imply the original recursive code works with any judge stack.
+- Range sums, assignments, and rectangle additions use naive arrays/grids.
+- Mo uses the original positive-value frequency-equals-value query.
+- Pattern matching uses direct string comparisons, including overlaps.
+- A fixed Rabin-Karp regression has separate collisions under the two
+  moduli at different positions; the corrected intersection returns zero.
+- Grid words use independent per-word DFS and compare the actual word set.
+- Miller-Rabin uses trial division for small/random numbers, known
+  pseudoprimes, and full unsigned-64-bit boundary cases.
+- Overflow regressions cover long paths, MST totals, rectangle sums,
+  replacement deltas, total flow, and dense negative cycles.
 
-FOLDER AND STYLE CHECKS
-- 62 topic folders: 29 three-star, 27 two-star, 6 one-star.
-- Every topic has one or two C++ files; no planned-only topic remains.
-- Importance is the first folder level, then domain, then algorithm.
-- Every file has a question, sample, Solve(), main(), and author line.
-- Block explanations; // for the Messenger of Allah quote, optional
-  cin >> t, and abbreviation notes. Counted queries and indexed loops.
-- Problem positions are 1-based where suitable; natural zero-based cases
-  are explained in the folder guide and relevant templates.
-- No hardcoded local input/output files.
-- Every template is visible to Git. A local ignore override fixes the old
-  *test* pattern matching the letters in "Shortest_Paths".
-- Build output stays inside Algorithms/build and is ignored.
-- All 38 legacy files were compared byte-for-byte with the recovery ZIP
-  before removing the five old folders. See MIGRATION.txt.
+UNCHANGED ALGORITHMS
+The updated suites still check new traversal/DSU, prefix sums, sparse table,
+trie counts, Hopcroft-Karp matching/cover, new range structures, totients,
+CRT, combinatorics, matrices, geometry, DP optimizations, and transforms.
+Large tests retain the 200,000-value treap and 50,000 sparse-tree operations.
+The tree-path Mo suite remains unchanged and uses Permutate Paths, with
+115 earlier passing executions including the supplied sample, direct-path
+oracles, and large chains/stars. The underlying template is also unchanged.
 
-RUN AGAIN FROM THE REPOSITORY ROOT
+RUN FROM THE REPOSITORY ROOT
 Requires Python 3 and GNU g++ on PATH:
 
+python Algorithms/validation/original_sources.py
+python Algorithms/validation/restored_checks.py
 python Algorithms/validation/graph_tree_checks.py
 python Algorithms/validation/range_string_checks.py
 python Algorithms/validation/math_checks.py
 python Algorithms/validation/geometry_ordered_checks.py
 python Algorithms/validation/remaining_checks.py
-python Algorithms/validation/subtree_depth_checks.py
 python Algorithms/validation/mo_tree_checks.py
 python Algorithms/validation/catalog_checks.py
 
-catalog_checks.py checks files, style, paths, and archive hashes; it does
-not add any executions to the 3,719 C++ program checks above.
+subtree_depth_checks.py is now a convenience wrapper for the restored tree
+checks, not an additional disjoint suite in the totals above.
 
-Compiler used here: C:\MinGW\bin\g++.exe (GCC 13.2).
-Python used here:
-C:\Users\Basel\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe
+catalog_checks.py verifies 75 sources, 62 topic folders, one/two methods per
+topic, all migration paths, Git visibility, and all 38 recovery-file hashes.
+New style rules apply to new templates. Original files instead pass exact
+archive-plus-fixes comparison. No Training paths are read or changed.
 
-All builds use -std=c++17 -O2 -Wall -Wextra.
-Graph/tree, math, remaining, subtree-depth, and tree-Mo checks add -Wshadow.
-Range/string adds -Wshadow -pedantic.
-Geometry/PBDS adds -Werror.
+Builds and reports stay in ignored Algorithms/build/. Original standalone
+programs compile with -DONLINE_JUDGE to bypass their local freopen setup.
+Compiler used: GCC 13.2 (C:/MinGW/bin/g++.exe).
+Fixed seeds: 20261020 for restored/three-star inputs, 20261021 for remaining,
+and 20261022 for tree-path Mo. Hashing can still collide, randomized treaps
+have a worst-case height, and FFT precision depends on its stated bounds.

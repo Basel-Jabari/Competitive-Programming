@@ -1,114 +1,103 @@
-/*
-Problem: connect all n cities with minimum total road cost.
-Input: n m, then m undirected roads u v w. Vertices are 1-based.
-Output: the minimum spanning tree cost, or IMPOSSIBLE if disconnected.
-Limits: 1 <= n <= 200000; 0 <= m <= 300000; |w| <= 1e9.
-Parallel edges, self-loops, and negative costs are allowed.
-Sample input:
-4 5
-1 2 3
-2 3 1
-3 4 2
-1 4 10
-1 3 5
-Sample output:
-6
-A spanning tree connects every vertex with n-1 edges and no cycles.
-Kruskal tries edges from cheapest to most expensive.
-Accept an edge only if its endpoints are in different DSU groups.
-Prefer Kruskal for an edge list / sparse graph. Dense Prim is O(n^2)
-and can be better for dense or implicit complete graphs.
-Time: O(n + m * log(m + 2)). Memory: O(n + m).
-Total cost may reach (n-1)*1e9 in absolute value: use long long.
-*/
+// Given a weighted connected undirected graph with n nodes, and m edges (1-base index).
+// Output the sum of the minimum spanning tree.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace __gnu_pbds;
+using namespace chrono;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
-class DSU { // DSU = disjoint set union.
-private:
-  vector<int> _parent, _size;
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
 
-public:
-  DSU(int n) : _parent(n + 1), _size(n + 1, 1) {
-    iota(_parent.begin(), _parent.end(), 0);
-  }
+mt19937 rng(high_resolution_clock::now().time_since_epoch().count());
 
-  int Find(int u) {
-    while (_parent[u] != u) {
-      _parent[u] = _parent[_parent[u]];
-      u = _parent[u];
-    }
-    return u;
-  }
+int dx[8] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
 
-  bool Unite(int u, int v) {
-    u = Find(u);
-    v = Find(v);
-    if (u == v) {
-      return false;
-    }
-    if (_size[u] < _size[v]) {
-      swap(u, v);
-    }
-    _parent[v] = u;
-    _size[u] += _size[v];
-    return true;
-  }
-};
+vector<vector<int>> g;
+vector<int> sz, par;
 
-struct Edge {
-  int u, v;
-  ll weight;
-};
-
-void Solve() {
-  int n, m;
-  cin >> n >> m;
-  vector<Edge> edges(m);
-  for (int index1 = 0; index1 < (int)edges.size(); ++index1) {
-    Edge &edge = edges[index1];
-    cin >> edge.u >> edge.v >> edge.weight;
-  }
-  sort(edges.begin(), edges.end(), [](const Edge &a, const Edge &b) {
-    return a.weight < b.weight;
-  });
-
-  DSU dsu(n); // DSU = disjoint set union.
-  ll answer = 0;
-  int used = 0;
-  for (int index2 = 0; index2 < (int)edges.size(); ++index2) {
-    const Edge &edge = edges[index2];
-    if (dsu.Unite(edge.u, edge.v)) {
-      answer += edge.weight;
-      ++used;
-      /* Save this edge here if the actual tree is required. */
-    }
-  }
-  if (used != n - 1) {
-    cout << "IMPOSSIBLE" << endl;
-  } else {
-    cout << answer << endl;
-  }
+bool cmp(const vector<int> &a, const vector<int> &b)
+{
+	return a[2] < b[2];
 }
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+int find(int node)
+{
+	if (par[node] == -1)
+		return node;
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+	return par[node] = find(par[node]);
+}
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+void Union(int s1, int s2)
+{
+	if (sz[s1] > sz[s2])
+		swap(s1, s2);
+
+	par[s1] = s2;
+	sz[s2] += sz[s1];
+	sz[s1] = 0;
+}
+
+void Solve()
+{
+	int n, m;
+	cin >> n >> m;
+
+	g.assign(m, {});
+	sz.assign(n + 1, 1);
+	par.assign(n + 1, -1);
+
+	for (int i = 0; i < m; ++i)
+	{
+		int x, y, w;
+		cin >> x >> y >> w;
+
+		g[i] = { x, y, w };
+	}
+
+	sort(g.begin(), g.end(), cmp);
+
+	ll ans = 0;
+	for (int i = 0; i < m; ++i)
+	{
+		int x = g[i][0], y = g[i][1], w = g[i][2];
+
+		int s1 = find(x), s2 = find(y);
+		if (s1 != s2)
+		{
+			ans += w;
+			Union(s1, s2);
+		}
+	}
+
+	cout << ans << endl;
+}
+
+int32_t main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+
+#ifndef ONLINE_JUDGE
+	freopen("C:\\Sublime\\input.txt", "r", stdin);
+	freopen("C:\\Sublime\\output.txt", "w", stdout);
+#endif
+
+	Solve();
+
+	cerr << "Basel Al-Jabari." << endl;
+
+	return 0;
 }

@@ -1,29 +1,7 @@
-/*
-Problem: Given n numbers, answer q operations:
-1 k value: Set a[k] = value.
-2 l r: Print the sum from l to r, including both ends.
-Input: n q, then n numbers, then q operations. Input is 1-based.
-Bounds: 1 <= n, q <= 200000, |initial and assigned values| <= 10^9.
-Sample input:
-4 4
-2 1 -3 5
-2 1 4
-1 3 7
-2 2 3
-2 3 4
-Sample output:
-5
-8
-12
-
-Each node stores the sum of its interval; Merge adds its two children.
-Change one leaf, then rebuild the sums on its path to the root.
-Build: O(n). Update/query: O(log n). Extra memory: O(n).
-Pitfalls: This update SETS a value; it does not add. Use ll for sums.
-Input indices are 1-based; the class below uses 1-based inclusive ranges.
-For point changes and sums only, Fenwick is smaller. A segment tree is
-easier to adapt when each node must store more information.
-*/
+// Given n elements, and q queries, there's two types of operations:
+// 1. Update k-th index to val.
+// 2. Output the sum from a to b.
+// a, b, k are 1-base.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
@@ -32,92 +10,102 @@ easier to adapt when each node must store more information.
 using namespace std;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
 class Segment_Tree {
 private:
   int _n;
-  vector<ll> _tree;
+  vector<ll> _segmentTree;
 
-  void Merge(int node) {
-    _tree[node] = _tree[2 * node] + _tree[2 * node + 1];
+  void Merge(int curNode) {
+    _segmentTree[curNode] = _segmentTree[2 * curNode + 1] + _segmentTree[2 * curNode + 2];
   }
 
-  void Build(int node, int l, int r, const vector<ll> &a) {
-    if (l == r) {
-      _tree[node] = a[l];
+  ll Operation(ll Q1, ll Q2) {
+    return Q1 + Q2;
+  }
+
+  void Build(int curL, int curR, int curNode, const vector<int> &a) {
+    if (curL == curR) {
+      _segmentTree[curNode] = a[curL];
       return;
     }
-    int mid = l + (r - l) / 2;
-    Build(2 * node, l, mid, a);
-    Build(2 * node + 1, mid + 1, r, a);
-    Merge(node);
+
+    int curMid = (curL + curR) / 2;
+    Build(curL, curMid, 2 * curNode + 1, a);
+    Build(curMid + 1, curR, 2 * curNode + 2, a);
+
+    Merge(curNode);
   }
 
-  void Update(int node, int l, int r, int index, ll value) {
-    if (l == r) {
-      _tree[node] = value;
-      return;
-    }
-    int mid = l + (r - l) / 2;
-    if (index <= mid) {
-      Update(2 * node, l, mid, index, value);
-    } else {
-      Update(2 * node + 1, mid + 1, r, index, value);
-    }
-    Merge(node);
-  }
-
-  ll Query(int node, int l, int r, int ql, int qr) const {
-    if (qr < l or r < ql) {
+  ll Query(int curL, int curR, int curNode, int requiredL, int requiredR) {
+    if (curL > requiredR or curR < requiredL) {
       return 0;
     }
-    if (ql <= l and r <= qr) {
-      return _tree[node];
+
+    if (curL >= requiredL and curR <= requiredR) {
+      return _segmentTree[curNode];
     }
-    int mid = l + (r - l) / 2;
-    return Query(2 * node, l, mid, ql, qr)
-           + Query(2 * node + 1, mid + 1, r, ql, qr);
+
+    int curMid = (curL + curR) / 2;
+    ll Q1 = Query(curL, curMid, 2 * curNode + 1, requiredL, requiredR);
+    ll Q2 = Query(curMid + 1, curR, 2 * curNode + 2, requiredL, requiredR);
+    return Q1 + Q2;
+  }
+
+  void Update(int curL, int curR, int curNode, int requiredLeaf, int newVal) {
+    if (curL == requiredLeaf and curR == requiredLeaf) {
+      _segmentTree[curNode] = newVal;
+      return;
+    }
+
+    int curMid = (curL + curR) / 2;
+    if (requiredLeaf <= curMid) {
+      Update(curL, curMid, 2 * curNode + 1, requiredLeaf, newVal);
+    } else {
+      Update(curMid + 1, curR, 2 * curNode + 2, requiredLeaf, newVal);
+    }
+
+    _segmentTree[curNode] = _segmentTree[2 * curNode + 1] + _segmentTree[2 * curNode + 2];
   }
 
 public:
-  Segment_Tree(const vector<ll> &a) {
-    _n = (int)a.size() - 1;
-    _tree.assign(4 * _n, 0);
-    Build(1, 1, _n, a);
+  Segment_Tree(const vector<int> &a) {
+    _n = a.size();
+    _segmentTree.resize(_n * 4, 0);
+    Build(0, _n - 1, 0, a);
   }
 
-  void Update(int index, ll value) {
-    Update(1, 1, _n, index, value);
+  ll Query(int requiredL, int requiredR) {
+    return Query(0, _n - 1, 0, requiredL, requiredR);
   }
 
-  ll Query(int l, int r) const {
-    return Query(1, 1, _n, l, r);
+  void Update(int requiredIndex, int newVal) {
+    Update(0, _n - 1, 0, requiredIndex, newVal);
   }
 };
 
 void Solve() {
   int n, q;
   cin >> n >> q;
-  vector<ll> a(n + 1);
-  for (int index1 = 1; index1 < (int)a.size(); ++index1) {
-    ll &value = a[index1];
-    cin >> value;
-  }
 
-  Segment_Tree tree(a);
-  for (int query = 1; query <= q; ++query) {
+  vector<int> a(n);
+  for (int i = 0; i < n; ++i)
+    cin >> a[i];
+
+  Segment_Tree _segmentTree(a);
+  for (int i = 1; i <= q; ++i) {
     int type;
     cin >> type;
+
     if (type == 1) {
-      int k;
-      ll value;
-      cin >> k >> value;
-      tree.Update(k, value);
+      int k, val;
+      cin >> k >> val;
+      _segmentTree.Update(k - 1, val);
     } else {
-      int l, r;
-      cin >> l >> r;
-      cout << tree.Query(l, r) << endl;
+      int a, b;
+      cin >> a >> b;
+      cout << _segmentTree.Query(a - 1, b - 1) << endl;
     }
   }
 }

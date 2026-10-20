@@ -1,106 +1,96 @@
-/*
-Problem: answer shortest-distance queries in a directed weighted graph.
-Input: n m q, then m lines u v w, then q lines a b.
-Vertices are 1-based. Output the minimum distance, or IMPOSSIBLE.
-If ANY negative cycle exists, print only NEGATIVE CYCLE and stop.
-Limits: 1 <= n <= 400; 0 <= m <= 200000; 0 <= q <= 200000;
--1e9 <= w <= 1e9. Negative edges and parallel edges are allowed.
-Sample input:
-3 3 2
-1 2 5
-2 3 -2
-1 3 10
-1 3
-3 1
-Sample output:
-3
-IMPOSSIBLE
-Use for small n when many pairs are queried. k MUST be the outer loop.
-In step k, allow vertex k as an extra middle vertex on each path.
-distance[v][v] < 0 detects a negative cycle: no finite minimum on
-paths that can enter that cycle and then reach their target.
-This problem rejects the whole graph if it has such a cycle.
-Time: O(n^3 + m + q). Memory: O(n^2).
-Without negative cycles, simple path costs fit in +/- (n-1)*1e9.
-Saturate very negative values only to avoid overflow on negative cycles.
-*/
+// Given a weighted connected directed graph with n nodes, and m edges (1-base index).
+// If there's a negative cycle, output IMPOSSIBLE.
+// Else, output the shortest path from each node to the other nodes.
+// If there's no path between two nodes, output INF.
+
+// Note: If there's any negative weight in an undirected graph, automatically the answer will be IMPOSSIBLE (No solution).
+// But if there's a negative weight in a directed graph, then if there's a negative cycle then the answer will be -IMPOSSIBLE (No solution).
+// Else we use Bellman Ford's Algorithm, or Floyd Warshall's Algorithm to find the answer.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace __gnu_pbds;
+using namespace chrono;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
-const ll INF = (1LL << 60); // INF = infinity (a large marker value).
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
 
-void Solve() {
-  int n, m, q;
-  cin >> n >> m >> q;
-  vector<vector<ll>> distance(n + 1, vector<ll>(n + 1, INF));
-  for (int i = 1; i <= n; ++i) {
-    distance[i][i] = 0;
-  }
-  for (int edgeIndex = 1; edgeIndex <= m; ++edgeIndex) {
-    int u, v;
-    ll weight;
-    cin >> u >> v >> weight;
-    /* min also preserves zero on a positive self-loop. */
-    distance[u][v] = min(distance[u][v], weight);
-  }
+mt19937 rng(high_resolution_clock::now().time_since_epoch().count());
 
-  for (int k = 1; k <= n; ++k) {
-    for (int u = 1; u <= n; ++u) {
-      if (distance[u][k] == INF) {
-        continue;
-      }
-      for (int v = 1; v <= n; ++v) {
-        if (distance[k][v] == INF) {
-          continue; /* Never add the unreachable sentinel. */
-        }
-        ll candidate = max(-INF, distance[u][k] + distance[k][v]);
-        distance[u][v] = min(distance[u][v], candidate);
-      }
-    }
-  }
-  bool negativeCycle = false;
-  for (int i = 1; i <= n; ++i) {
-    negativeCycle |= distance[i][i] < 0;
-  }
-  if (negativeCycle) {
-    cout << "NEGATIVE CYCLE" << endl;
-    /* Consume this case's queries so enabling multiple cases remains safe. */
-    for (int query = 1; query <= q; ++query) {
-      int u, v;
-      cin >> u >> v;
-    }
-    return;
-  }
-  for (int query = 1; query <= q; ++query) {
-    int u, v;
-    cin >> u >> v;
-    ll answer = distance[u][v];
-    if (answer == INF) {
-      cout << "IMPOSSIBLE" << endl;
-    } else {
-      cout << answer << endl;
-    }
-  }
+int dx[8] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
+
+vector<vector<ll>> dist;
+void Solve()
+{
+	int n, m;
+	cin >> n >> m;
+
+	dist.assign(n + 1, vector<ll> (n + 1, LLONG_MAX));
+	for (int i = 1; i <= n; ++i)
+		dist[i][i] = 0;
+
+	for (int i = 0; i < m; ++i)
+	{
+		int x, y, w;
+		cin >> x >> y >> w;
+
+		dist[x][y] = min(dist[x][y], (ll)w);
+	}
+
+	for (int k = 1; k <= n; ++k)
+		for (int i = 1; i <= n; ++i)
+			for (int j = 1; j <= n; ++j)
+				if (dist[i][k] != LLONG_MAX and dist[k][j] != LLONG_MAX)
+					dist[i][j] = min(dist[i][j], (ll)max((__int128)LLONG_MIN, (__int128)dist[i][k] + dist[k][j]));
+
+	bool neg_cycle = false;
+	for (int i = 1; i <= n; ++i)
+		if (dist[i][i] < 0)
+			neg_cycle = true;
+
+	if (neg_cycle)
+		cout << "IMPOSSIBLE" << endl;
+
+	else
+	{
+		for (int i = 1; i <= n; ++i)
+		{
+			for (int j = 1; j <= n; ++j)
+				if (i != j)
+					if (dist[i][j] == LLONG_MAX)
+						cout << "INF" << ' ';
+					else
+						cout << dist[i][j] << ' ';
+			cout << endl;
+		}
+	}
 }
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+int32_t main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+#ifndef ONLINE_JUDGE
+	freopen("C:\\Sublime\\input.txt", "r", stdin);
+	freopen("C:\\Sublime\\output.txt", "w", stdout);
+#endif
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+	Solve();
+
+	cerr << "Basel Al-Jabari." << endl;
+
+	return 0;
 }
+

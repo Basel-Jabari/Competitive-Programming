@@ -6,6 +6,7 @@ import csv
 import re
 import subprocess
 import zipfile
+from original_sources import MAPPING, main as verify_originals
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
@@ -16,6 +17,8 @@ def main():
     with (ROOT/"TOPICS.tsv").open(encoding="utf-8", newline="") as f:
         topics = list(csv.DictReader(f, delimiter="\t"))
     assert len(sources) == 75 and len(topics) == 62
+    restored = {ROOT/path for _, path, _ in MAPPING}
+    verify_originals()
     assert {p.parent for p in sources} == {ROOT/e["Path"] for e in topics}
     for topic in topics:
         folder = ROOT/topic["Path"]
@@ -25,6 +28,9 @@ def main():
     for path in sources:
         text = path.read_text(encoding="utf-8")
         assert len(path.relative_to(ROOT).parts) == 4, path
+        if path in restored:
+            # The author's exact original code takes precedence over new style rules.
+            continue
         for marker in ["Sample input:", "Sample output:", "void Solve()", "int32_t main()", "Basel Al-Jabari."]:
             assert marker in text, (path, marker)
         code = re.sub(r"/\*.*?\*/", "", text, flags=re.S)

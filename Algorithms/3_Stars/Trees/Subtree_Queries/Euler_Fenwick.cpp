@@ -1,150 +1,156 @@
-/*
-Problem: maintain values on a fixed tree rooted at r.
-Input: n q r, n values, n-1 undirected edges, then q queries.
-1 u x: set vertex u's value to x.
-2 u: print the sum in u's subtree, including u.
-Vertices are 1-based. The input must be a connected tree.
-Limits: 1 <= n, q <= 200000; every initial/new value is in [-1e9, 1e9].
-Sample input:
-5 4 1
-1 2 3 4 5
-1 2
-1 3
-2 4
-2 5
-2 2
-1 4 10
-2 2
-2 1
-Sample output:
-11
-17
-21
-Enter each vertex once in DFS order. A subtree becomes one interval.
-tin[u] is its first position; tout[u] is its last position (inclusive).
-Subtree u = [tin[u], tout[u]]. Unlike LCA's Euler walk, no vertex repeats.
-A Fenwick tree supports point addition and prefix sums.
-To SET a value, add (newValue - oldValue), not newValue itself.
-Build: O(n). Update/query: O(log n). Memory: O(n).
-Sums can reach n*1e9 in absolute value: use long long.
-Preprocessing uses iterative frames, safe for a long chain.
-*/
+// Given a tree with n nodes, q queries, there's two types of queries:
+// 1. Update the value of node s to value x.
+// 2. Output the sum of the subtree of node s.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace __gnu_pbds;
+using namespace chrono;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
-class Fenwick_Tree {
-private:
-  int _n;
-  vector<ll> _bit; // BIT = binary indexed tree (Fenwick tree).
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
 
-public:
-  Fenwick_Tree(const vector<ll> &a) : _n((int)a.size() - 1), _bit(_n + 1, 0) {
-    /* Linear build: each completed Fenwick block contributes to its parent. */
-    for (int i = 1; i <= _n; ++i) {
-      _bit[i] += a[i];
-      int parent = i + (i & -i);
-      if (parent <= _n) {
-        _bit[parent] += _bit[i];
-      }
-    }
-  }
+mt19937 rng(high_resolution_clock::now().time_since_epoch().count());
 
-  void Add(int index, ll delta) {
-    /* Both public indices and the Fenwick array are 1-based. */
-    for (int i = index; i <= _n; i += i & -i) {
-      _bit[i] += delta;
-    }
-  }
+int dx[8] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
 
-  ll Prefix(int end) const {
-    /* Sum of [1, end]; Prefix(0) = 0 and Prefix(n) is the total. */
-    ll answer = 0;
-    for (int i = end; i > 0; i -= i & -i) {
-      answer += _bit[i];
-    }
-    return answer;
-  }
+vector<vector<int>> g;
+vector<int> in, out, a;
+int timer;
 
-  ll Query(int left, int right) const {
-    return Prefix(right) - Prefix(left - 1); /* [left, right]. */
-  }
+struct fenwick
+{
+	int n;
+	vector<ll> ft;
+
+	fenwick(int n)
+	{
+		this->n = n;
+		ft.resize(n + 1);
+	}
+
+	void build()
+	{
+		for (int i = 1; i <= n; ++i)
+		{
+			int index = in[i];
+			while (index <= n)
+			{
+				ft[index] += a[i];
+				index += index & -index;
+			}
+		}
+	}
+
+	void set(int index, ll val)
+	{
+		while (index <= n)
+		{
+			ft[index] += val;
+			index += index & -index;
+		}
+	}
+
+	ll query(int index)
+	{
+		ll ans = 0;
+		while (index)
+		{
+			ans += ft[index];
+			index -= index & -index;
+		}
+
+		return ans;
+	}
 };
 
-void Solve() {
-  int n, q, root;
-  cin >> n >> q >> root;
-  vector<ll> value(n + 1);
-  for (int index1 = 1; index1 < (int)value.size(); ++index1) {
-    ll &x = value[index1];
-    cin >> x;
-  }
-  vector<vector<int>> tree(n + 1);
-  for (int i = 0; i < n - 1; ++i) {
-    int u, v;
-    cin >> u >> v;
-    tree[u].push_back(v);
-    tree[v].push_back(u);
-  }
+void dfs(int node, int par)
+{
+	in[node] = ++timer;
 
-  struct Frame {
-    int u, parent, next;
-  };
-  vector<int> tin(n + 1), tout(n + 1); // tin = time in (DFS entry time). tout = time out (last entry time in the subtree).
-  vector<Frame> st = {{root, -1, 0}}; // st = stack.
-  int timer = 0;
-  tin[root] = ++timer;
-  while (!st.empty()) {
-    int u = st.back().u;
-    if (st.back().next == (int)tree[u].size()) {
-      tout[u] = timer;
-      st.pop_back();
-    } else {
-      int v = tree[u][st.back().next++];
-      if (v == st.back().parent) {
-        continue;
-      }
-      tin[v] = ++timer;
-      st.push_back({v, u, 0});
-    }
-  }
+	for (auto c : g[node])
+		if (c != par)
+			dfs(c, node);
 
-  vector<ll> flattened(n + 1);
-  for (int u = 1; u <= n; ++u) {
-    flattened[tin[u]] = value[u];
-  }
-  Fenwick_Tree fenwick(flattened);
-  for (int query = 1; query <= q; ++query) {
-    int type, u;
-    cin >> type >> u;
-    if (type == 1) {
-      ll x;
-      cin >> x;
-      fenwick.Add(tin[u], x - value[u]);
-      value[u] = x;
-    } else {
-      cout << fenwick.Query(tin[u], tout[u]) << endl;
-    }
-  }
+	out[node] = timer;
 }
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+void Solve()
+{
+	int n, q;
+	cin >> n >> q;
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+	g.assign(n + 1, {});
+	in.assign(n + 1, 0);
+	out.assign(n + 1, 0);
+	a.assign(n + 1, 0);
+	timer = 0;
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+	for (int i = 1; i <= n; ++i)
+		cin >> a[i];
+
+	for (int i = 0; i < n - 1; ++i)
+	{
+		int x, y;
+		cin >> x >> y;
+
+		g[x].push_back(y);
+		g[y].push_back(x);
+	}
+
+	dfs(1, 0);
+	fenwick tree(n);
+	tree.build();
+
+	while (q--)
+	{
+		int type;
+		cin >> type;
+
+		if (type == 1)
+		{
+			int s, x;
+			cin >> s >> x;
+
+			ll delta = (ll)x - a[s];
+			a[s] = x;
+			tree.set(in[s], delta);
+		}
+
+		else
+		{
+			int s;
+			cin >> s;
+			cout << tree.query(out[s]) - tree.query(in[s] - 1) << endl;
+		}
+	}
 }
+
+int32_t main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+
+#ifndef ONLINE_JUDGE
+	freopen("C:\\Sublime\\input.txt", "r", stdin);
+	freopen("C:\\Sublime\\output.txt", "w", stdout);
+#endif
+
+	Solve();
+
+	cerr << "Basel Al-Jabari." << endl;
+
+	return 0;
+}
+

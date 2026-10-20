@@ -48,11 +48,11 @@ METHOD CHOICES: AT MOST TWO FILES PER ALGORITHM FOLDER
 Keep methods with a useful time bound for their stated conditions.
 Equal time bounds are a reason to compare methods, not to store every variant.
 
-- Minimum spanning tree: Kruskal for an edge list, dense Prim for a dense
-  graph or an implicit complete graph. O(E log E) versus O(V^2).
+- Minimum spanning tree: original Kruskal and heap Prim for connected
+  edge-list graphs. Both have O(E log(E+1)+V) time here.
 - SCC: Kosaraju and Tarjan, both O(V + E). Two useful implementations.
-- LCA: binary lifting for ancestor jumps, Euler walk + sparse table for O(1)
-  LCA queries after O(N log N) work. No repeated copies of the same Euler code.
+- LCA: original binary lifting and Euler walk + segment tree. Both answer
+  LCA queries in O(log N), with root 1. Duplicate Euler source stays archived.
 - Maximum flow: Dinic only. Ford-Fulkerson and Edmonds-Karp are omitted from
   the new set because their general time guarantees are weaker.
 - Sieve: both requested methods. Linear sieve gives smallest prime factors
@@ -62,13 +62,13 @@ Equal time bounds are a reason to compare methods, not to store every variant.
 - Shortest paths: unweighted, binary-weight, nonnegative-weight, all-pairs,
   and negative-weight problems have different conditions. They are separate
   tasks, not five competing methods for the same unrestricted problem.
-- Segment tree: point operations and combined lazy set/add operations.
-  No third file for a minor change to the same lazy tree.
-- Mo: one array-range file and one tree-path file. The tree example solves
+- Segment tree: original point assignment and lazy range assignment
+  implementations, both with range-sum queries.
+- Mo: the original frequency-equals-value array example and the new tree
+  example. The tree example solves
   Permutate Paths using an entry/exit Euler tour, LCA, and missing-value blocks.
-- Pattern matching: exact KMP. The separate double-hash template supports
-  substring equality; it covers the hashing idea behind Rabin-Karp. A second
-  hash-based pattern-count program is not needed for the same task.
+- Pattern matching: original KMP and Rabin-Karp pattern counting.
+  Rabin-Karp uses the two original hash pairs; KMP is exact.
 - Euler tours: the LCA and subtree files show the two useful visit orders.
   The subtree folder has sum queries and the old depth-count question.
   Repeated copies of the same visit order are not needed.
@@ -80,6 +80,12 @@ Equal time bounds are a reason to compare methods, not to store every variant.
   answers a separate coefficient question; it is not a second power-sum method.
 
 TEMPLATE STYLE
+The 27 restored originals retain their existing style and original examples.
+Only documented correctness fixes differ; see RESTORATION.txt and its patch.
+Compile with -DONLINE_JUDGE to disable original local freopen paths.
+Recursive originals require sufficient stack space for the input depth.
+Original helpers, classes, indices, and loops are preserved.
+The following style rules apply to newly added templates:
 Each .cpp is a complete GNU C++17 program:
 - The question, input, output, limits, and a small example come first.
 - Brief notes explain when to use it, complexity, and common mistakes.

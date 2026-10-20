@@ -1,98 +1,109 @@
-/*
-Problem: find distances from s in a directed graph with negative edge weights.
-Input: n m s, then m lines u v w. Vertices are 1-based.
-Output n tokens: distance, INF if unreachable, or -INF if arbitrarily small.
-Limits: 1 <= n <= 2500, 0 <= m <= 5000, |w| <= 10^9.
+// Given a weighted connected directed graph with n nodes, and m edges (1-base index).
+// If there's a negative cycle, output IMPOSSIBLE.
+// Else, output the shortest path from the node 1 to the other nodes.
 
-Sample input:
-4 4 1
-1 2 2
-2 3 -3
-3 2 1
-3 4 5
-Sample output:
-0 -INF -INF -INF
-
-Use when edges can be negative. Dijkstra is not valid in that case.
-Relax u->v when going through u gives a smaller distance to v.
-Without a reachable negative cycle, n-1 rounds are enough.
-A change on round n means a reachable negative cycle can affect that vertex.
-Follow outgoing edges from these vertices to mark every -INF answer.
-Unreachable negative cycles do not affect this source.
-Time O(n*m + n + m); memory O(n+m). Values fit ll at these bounds.
-For detecting a negative cycle anywhere, initialize all distances to zero.
-*/
+// Note: If there's any negative weight in an undirected graph, automatically the answer will be IMPOSSIBLE (No solution).
+// But if there's a negative weight in a directed graph, then if there's a negative cycle then the answer will be -IMPOSSIBLE (No solution).
+// Else we use Bellman Ford's Algorithm, or Floyd Warshall's Algorithm to find the answer.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace __gnu_pbds;
+using namespace chrono;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
-void Solve() {
-  int n, m, source;
-  cin >> n >> m >> source;
-  struct Edge { int u, v; ll w; };
-  vector<Edge> edges(m + 1);
-  vector<vector<int>> graph(n + 1);
-  for (int i = 1; i <= m; ++i) {
-    cin >> edges[i].u >> edges[i].v >> edges[i].w;
-    graph[edges[i].u].push_back(edges[i].v);
-  }
-  const ll INF = (1LL << 62); // INF = infinity (a large marker value).
-  vector<ll> distance(n + 1, INF);
-  vector<bool> bad(n + 1, false);
-  queue<int> pending;
-  distance[source] = 0;
-  for (int round = 1; round <= n; ++round) {
-    bool changed = false;
-    for (int i = 1; i <= m; ++i) {
-      auto [u, v, w] = edges[i];
-      if (distance[u] != INF and distance[u] + w < distance[v]) {
-        distance[v] = distance[u] + w;
-        changed = true;
-        if (round == n and !bad[v]) {
-          bad[v] = true;
-          pending.push(v);
-        }
-      }
-    }
-    if (!changed) break;
-  }
-  while (!pending.empty()) {
-    int u = pending.front();
-    pending.pop();
-    for (int i = 0; i < (int)graph[u].size(); ++i) {
-      int v = graph[u][i];
-      if (!bad[v]) {
-        bad[v] = true;
-        pending.push(v);
-      }
-    }
-  }
-  for (int u = 1; u <= n; ++u) {
-    if (u > 1) cout << ' ';
-    if (bad[u]) cout << "-INF";
-    else if (distance[u] == INF) cout << "INF";
-    else cout << distance[u];
-  }
-  cout << endl;
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
+
+mt19937 rng(high_resolution_clock::now().time_since_epoch().count());
+
+int dx[8] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
+
+vector<vector<int>> g;
+vector<ll> dist;
+
+void Solve()
+{
+	int n, m;
+	cin >> n >> m;
+
+	// Edge List.
+	g.clear();
+	dist.assign(n + 1, LLONG_MAX);
+
+	for (int i = 0; i < m; ++i)
+	{
+		int x, y, w;
+		cin >> x >> y >> w;
+
+		g.push_back({ x, y, w });
+	}
+
+	// It should be 0 not INT_MIN, because we will add the dist of it to the dist of it's childs.
+	dist[1] = 0;
+
+	// If the edges of the source node are the first in the edge list.
+	// Then the edges of the childs of the source node and so on.
+	// Then it is sorted (No need to relax the edges).
+	// But if it is not, we have to relax the edges, by iterating for n - 1 times.
+	// Because each dist of a node depends on the dist of an other node.
+	// If the dist of the other node is not calculated, then we cannot find out the dist of the current node.
+	// That's why we need to relax the edges.
+	for (int i = 0; i < n; ++i)
+		for (auto edge : g)
+		{
+			int x = edge[0], y = edge[1], w = edge[2];
+
+			// dist[x] != LLONG_MAX to prevent overflow in dist[x] + w.
+			// We can fix it also by making dist long long instead of int.
+			if (dist[x] != LLONG_MAX and dist[x] + w < dist[y])
+				dist[y] = dist[x] + w;
+		}
+
+	bool neg_cycle = false;
+	for (int i = 0; i < n; ++i)
+		for (auto edge : g)
+		{
+			int x = edge[0], y = edge[1], w = edge[2];
+
+			if (dist[x] != LLONG_MAX and dist[x] + w < dist[y])
+				neg_cycle = true;
+		}
+
+	if (neg_cycle)
+		cout << "IMPOSSIBLE" << endl;
+
+	else
+	{
+		for (int i = 2; i <= n; ++i)
+			cout << dist[i] << ' ';
+		cout << endl;
+	}
 }
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+int32_t main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+#ifndef ONLINE_JUDGE
+	freopen("C:\\Sublime\\input.txt", "r", stdin);
+	freopen("C:\\Sublime\\output.txt", "w", stdout);
+#endif
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+	Solve();
+
+	cerr << "Basel Al-Jabari." << endl;
+
+	return 0;
 }

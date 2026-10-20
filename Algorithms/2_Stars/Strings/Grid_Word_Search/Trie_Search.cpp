@@ -1,100 +1,144 @@
-/*
-Problem: count DISTINCT dictionary words found in a lowercase grid.
-Move up/down/left/right; do not reuse a cell in one word.
-Input: rows columns w, grid rows, then w nonempty lowercase words.
-Output the count. Repeated dictionary words count once.
-Limits: 1 <= rows,columns <= 4, 1 <= w <= 1000, word length <= 10.
-
-Sample input:
-2 2 4
-ab
-cd
-ab
-ac
-aba
-ab
-Sample output:
-2
-
-A trie lets many dictionary words share the same search.
-Stop a search when its prefix is absent from the trie.
-Clear a found terminal flag so later paths cannot count the same word again.
-Mark the current cell before DFS and unmark it when returning.
-With maximum word length L, worst-case time O(total word lengths +
-rows*columns*4*3^(L-1)); trie pruning often saves much work.
-Memory O(26*total word lengths + rows*columns + L). Recursion depth <= 10.
-Grid coordinates are 1-based; character positions inside a word are 0-based.
-*/
+// Given n * m board of characters, and w words, output the number of words that can be constructed using the characters in the board.
+// Each word must be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring.
+// The same letter cell may not be used more than once in a word.
 
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <chrono>
 
 using namespace std;
+using namespace __gnu_pbds;
+using namespace chrono;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
-void Solve() {
-  int rows, columns, w;
-  cin >> rows >> columns >> w;
-  vector<string> grid(rows + 1);
-  for (int i = 1; i <= rows; ++i) {
-    cin >> grid[i];
-    grid[i] = " " + grid[i];
-  }
-  struct Node {
-    array<int, 26> next{};
-    bool terminal = false;
-  };
-  vector<Node> trie(2);
-  for (int i = 1; i <= w; ++i) {
-    string word;
-    cin >> word;
-    int node = 1;
-    for (int j = 0; j < (int)word.size(); ++j) {
-      int letter = word[j] - 'a';
-      if (!trie[node].next[letter]) {
-        int child = trie.size();
-        trie.push_back(Node());
-        trie[node].next[letter] = child;
-      }
-      node = trie[node].next[letter];
-    }
-    trie[node].terminal = true;
-  }
-  vector<vector<bool>> used(rows + 1, vector<bool>(columns + 1));
-  int answer = 0;
-  int dr[4] = {1, -1, 0, 0}, dc[4] = {0, 0, 1, -1}; // dr = change in row; dc = change in column.
-  function<void(int,int,int)> DFS = [&](int r, int c, int node) { // DFS = depth-first search.
-    if (r < 1 or r > rows or c < 1 or c > columns or used[r][c]) return;
-    node = trie[node].next[grid[r][c] - 'a'];
-    if (!node) return;
-    if (trie[node].terminal) {
-      ++answer;
-      trie[node].terminal = false;
-    }
-    used[r][c] = true;
-    for (int i = 0; i < 4; ++i) DFS(r + dr[i], c + dc[i], node);
-    used[r][c] = false;
-  };
-  for (int r = 1; r <= rows; ++r) {
-    for (int c = 1; c <= columns; ++c) DFS(r, c, 1);
-  }
-  cout << answer << endl;
+template<typename data_type>
+using ordered_set = tree<data_type, null_type, less<data_type>, rb_tree_tag, tree_order_statistics_node_update>;
+
+mt19937 rng(high_resolution_clock::now().time_since_epoch().count());
+
+int dx[8] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+int dy[8] = { 1, 0, -1, 0, 1, 1, -1, -1 };
+
+struct node
+{
+	node* arr[26];
+	bool isTerminated;
+	string word;
+
+	node()
+	{
+		for (int i = 0; i < 26; ++i)
+			arr[i] = nullptr;
+
+		isTerminated = false;
+		word = "";
+	}
+};
+
+struct Trie
+{
+	node* head;
+
+	Trie()
+	{
+		head = new node;
+	}
+
+	void addWord(string &word)
+	{
+		int n = word.size();
+		node* temp = head;
+
+		for (int i = 0; i < n; ++i)
+		{
+			if (temp->arr[word[i] - 'a'] == nullptr)
+				temp->arr[word[i] - 'a'] = new node;
+
+			temp = temp->arr[word[i] - 'a'];
+			if (i == n - 1)
+			{
+				temp->word = word;
+				temp->isTerminated = true;
+			}
+		}
+	}
+};
+
+vector<vector<char>> g;
+vector<vector<bool>> v;
+set<string> answer;
+void dfs(int x, int y, node *nd)
+{
+	if (nd->arr[g[x][y] - 'a'] == nullptr)
+		return;
+
+	v[x][y] = true;
+	nd = nd->arr[g[x][y] - 'a'];
+	if (nd->isTerminated == true and answer.find(nd->word) == answer.end())
+		answer.insert(nd->word);
+
+	int n = g.size(), m = g[0].size();
+	for (int k = 0; k < 4; ++k)
+	{
+		int xx = x + dx[k];
+		int yy = y + dy[k];
+
+		if (xx >= 0 and yy >= 0 and xx < n and yy < m and !v[xx][yy])
+			dfs(xx, yy, nd);
+	}
+
+	v[x][y] = false;
 }
 
-int32_t main() {
-  ios_base::sync_with_stdio(0);
-  cin.tie(0);
-  cout.tie(0);
+void Solve()
+{
+	int n, m;
+	cin >> n >> m;
 
-  int t = 1;
-  // cin >> t;
-  for (int i = 1; i <= t; ++i) {
-    Solve();
-  }
+	g.assign(n, vector<char>(m, ' '));
+	v.assign(n, vector<bool>(m, false));
+	answer.clear();
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+			cin >> g[i][j];
 
-  cerr << "Basel Al-Jabari." << endl;
-  return 0;
+	int w;
+	cin >> w;
+	Trie tr;
+	for (int i = 0; i < w; ++i)
+	{
+		string word;
+		cin >> word;
+		tr.addWord(word);
+	}
+
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+			dfs(i, j, tr.head);
+
+	for (auto ans : answer)
+		cout << ans << endl;
+}
+
+int32_t main()
+{
+	ios_base::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+
+#ifndef ONLINE_JUDGE
+	freopen("C:\\Sublime\\input.txt", "r", stdin);
+	freopen("C:\\Sublime\\output.txt", "w", stdout);
+#endif
+
+	Solve();
+
+	cerr << "Basel Al-Jabari." << endl;
+
+	return 0;
 }

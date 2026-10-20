@@ -1,21 +1,3 @@
-/*
-Problem: start with an all-zero n*m grid and add x to rectangles.
-Input: n m q, then q lines r1 c1 r2 c2 x. Corners are inclusive and 1-based.
-Output the final n*m grid. Limits: n,m <= 1000, q <= 200000, |x| <= 10^9.
-
-Sample input:
-2 3 2
-1 1 2 2 5
-2 2 2 3 -2
-Sample output:
-5 5 0
-5 3 -2
-
-A rectangle update changes four corners, with signs +,-,-,+.
-Two-dimensional prefix sums recover the values after all updates.
-Time O(n*m+q); memory O(n*m). The extra row and column store r2+1,c2+1.
-*/
-
 // The Messenger of Allah (Peace and blessings be upon him) said: "Whoever is humble for the sake of Allah, Allah will raise him".
 
 #include <bits/stdc++.h>
@@ -23,26 +5,48 @@ Time O(n*m+q); memory O(n*m). The extra row and column store r2+1,c2+1.
 using namespace std;
 
 #define endl '\n'
-#define ll long long // ll = long long.
+#define ll long long
 
 void Solve() {
   int n, m, q;
   cin >> n >> m >> q;
-  vector<vector<ll>> difference(n + 2, vector<ll>(m + 2));
-  for (int i = 1; i <= q; ++i) {
-    int r1, c1, r2, c2;
-    ll x;
-    cin >> r1 >> c1 >> r2 >> c2 >> x;
-    difference[r1][c1] += x;
-    difference[r2 + 1][c1] -= x;
-    difference[r1][c2 + 1] -= x;
-    difference[r2 + 1][c2 + 1] += x;
-  }
-  for (int r = 1; r <= n; ++r) {
-    for (int c = 1; c <= m; ++c) {
-      difference[r][c] += difference[r - 1][c] + difference[r][c - 1] - difference[r - 1][c - 1];
-      cout << difference[r][c] << (c == m ? '\n' : ' ');
+
+  vector<vector<int>> a(n + 1, vector<int>(m + 1));
+  for (int i = 1; i <= n; ++i) {
+    for (int j = 1; j <= m; ++j) {
+      cin >> a[i][j];
     }
+  }
+
+  vector<vector<ll>> preSum(n + 2, vector<ll>(m + 2));
+  for (int i = 1; i <= q; ++i) {
+    array<int, 2> row, column;
+    for (int j = 0; j < 2; ++j) {
+      cin >> row[j] >> column[j];
+    }
+
+    int val;
+    cin >> val;
+
+    preSum[row[0]][column[0]] += val;
+    preSum[row[1] + 1][column[1] + 1] += val;
+
+    preSum[row[0]][column[1] + 1] -= val;
+    preSum[row[1] + 1][column[0]] -= val;
+  }
+
+  for (int i = 1; i <= n; ++i) {
+    for (int j = 1; j <= m; ++j) {
+      preSum[i][j] += preSum[i - 1][j] + preSum[i][j - 1] - preSum[i - 1][j - 1];
+    }
+  }
+
+  for (int i = 1; i <= n; ++i) {
+    for (int j = 1; j <= m; ++j) {
+      cout << a[i][j] + preSum[i][j] << ' ';
+    }
+
+    cout << endl;
   }
 }
 
@@ -58,5 +62,6 @@ int32_t main() {
   }
 
   cerr << "Basel Al-Jabari." << endl;
+
   return 0;
 }

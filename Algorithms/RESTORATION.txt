@@ -1,0 +1,64 @@
+ORIGINAL IMPLEMENTATION RESTORATION
+Basel Al-Jabari
+2026-10-20
+
+Scope
+27 current templates were restored from the recovery ZIP, including its
+pre-existing local edits. The retired extra flow/Euler-tour variants stay
+archived, as requested. Hopcroft-Karp keeps its newer implementation.
+The 47 other newly added programs are unchanged. Training is excluded.
+
+Preservation
+Original names, function signatures, state placement, loops, indentation,
+indices, constants, and input/output are preserved except for the bugs below.
+Original classes/structs remain where Basel already used them.
+Archive line endings are normalized to LF; no other formatting rewrite.
+The exact differences are in RESTORATION_BUG_FIXES.patch.
+validation/original_sources.py checks every restored file against the archive
+with those exact corrections. MIGRATION.txt maps every original source.
+
+Correctness fixes
+- Dijkstra: source distance is zero; set keys and the extracted distance
+  use ll so routes above INT_MAX remain correct.
+- Floyd-Warshall: keep the smallest parallel edge and preserve the zero
+  diagonal for positive self-loops. Detect negative diagonals explicitly.
+  Use wide addition with a lower clamp to prevent negative-cycle overflow.
+- Kruskal and Prim: ll total cost instead of int.
+- Binary lifting: correct the false comment about depth-difference bits.
+  Either bit order works for a fixed difference; algorithm code is unchanged.
+- Euler/Fenwick subtree sums: ll replacement delta and update argument,
+  because subtracting two valid int values can exceed int.
+- Subtree depth counts: return zero before indexing an out-of-range depth.
+- 2D prefix sums: keep the returned rectangle sum in ll.
+- Fenwick: exclude the unused index 0 from _n; remove the extra increment
+  in Get; correct the indexing comment; use ll for replacement deltas.
+  The original constructor otherwise read one element past a's end.
+- Rabin-Karp: require both hashes to match at the SAME window. Preserve
+  the original (911,1000000007) and (3571,1000000009) pairs and lambdas.
+  Taking min of independent counts was incorrect: for pattern abcdefgh,
+  text nuzeaahpzzzzzzzzlwjmafby collides at position 0 under the first hash
+  and position 16 under the second. Old count: 1; actual and fixed count: 0.
+  A collision under both hashes is still possible.
+- Bridges and edge blocks: skip only the first parent-edge occurrence;
+  a second parallel edge is a real back edge.
+- Rerooting: ll subtree totals and answers to prevent int overflow.
+- Miller-Rabin: unsigned __int128 multiplication, since a product of two
+  unsigned 64-bit values can overflow signed __int128. All seven bases stay.
+
+Examples and filenames
+The original contracts also return:
+- Fenwick: point assignment, not point addition.
+- Lazy segment tree: assignment only, with point-set/range-set/range-sum.
+- Rabin-Karp: pattern occurrence count, not substring equality queries.
+- Array Mo: count values x with frequency exactly x, not distinct values.
+- Prim: the original edge-list heap implementation.
+Filenames were updated to reflect these behaviors.
+Original example inputs/outputs are in validation/original_examples.py.
+
+Running original programs
+Compile one file using GNU C++17 and -DONLINE_JUDGE. That flag disables
+the original local freopen paths in main without changing the source.
+Several original DFS implementations are recursive. Available stack space
+limits the safe input depth; iterative limits from the earlier rewrites
+do not apply. The large reroot regression uses an enlarged Windows stack.
+Original sign-compare, shadowing, and dangling-else warnings are recorded.

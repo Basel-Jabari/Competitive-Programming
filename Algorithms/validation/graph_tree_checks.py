@@ -1,4 +1,5 @@
-"""Compile graph/tree templates and compare them with independent small solvers.
+"""Check the newly added BFS, DFS, and DSU templates.
+Restored graph/tree implementations are checked by restored_checks.py.
 
 Run: python Algorithms/validation/graph_tree_checks.py
 Use --skip-compile to reuse the executables in Algorithms/build.
@@ -25,6 +26,7 @@ def compile_all():
     compiler = shutil.which("g++") or r"C:\MinGW\bin\g++.exe"
     sources = sorted((ROOT / "3_Stars" / "Graphs").rglob("*.cpp"))
     sources += sorted((ROOT / "3_Stars" / "Trees").rglob("*.cpp"))
+    sources = [p for p in sources if p.stem in {"BFS", "DFS", "DSU"}]
     BUILD.mkdir(exist_ok=True)
 
     def compile_one(source):
@@ -138,246 +140,26 @@ def check_dsu():
         check("DSU", f"{n} {len(queries)}\n" + edge_lines(queries), "\n".join(answers))
 
 
-def bellman_ford(n, edges, source):
-    distance = [None] * n
-    distance[source] = 0
-    for _ in range(n - 1):
-        changed = False
-        for u, v, weight in edges:
-            if distance[u] is not None:
-                candidate = distance[u] + weight
-                if distance[v] is None or candidate < distance[v]:
-                    distance[v] = candidate
-                    changed = True
-        if not changed:
-            break
-    return distance
 
 
-def has_negative_cycle(n, edges):
-    # A zero-cost super-source reaches every vertex.
-    distance = [0] * n
-    for step in range(n):
-        changed = False
-        for u, v, weight in edges:
-            if distance[v] > distance[u] + weight:
-                distance[v] = distance[u] + weight
-                changed = True
-        if not changed:
-            return False
-    return True
 
 
-def check_shortest_paths():
-    for name, max_weight in [("Dijkstra", 10**9), ("Zero_One_BFS", 1)]:
-        for _ in range(80):
-            n = RNG.randint(1, 10)
-            source = RNG.randrange(n)
-            edges = [
-                (RNG.randrange(n), RNG.randrange(n), RNG.randint(0, max_weight))
-                for _ in range(RNG.randrange(40))
-            ]
-            expected = bellman_ford(n, edges, source)
-            data = f"{n} {len(edges)} {source + 1}\n"
-            data += edge_lines([(u + 1, v + 1, w) for u, v, w in edges])
-            check(name, data, " ".join(str(-1 if d is None else d) for d in expected))
-
-    check("Dijkstra", "4 3 1\n1 2 1000000000\n2 3 1000000000\n3 4 1000000000\n",
-          "0 1000000000 2000000000 3000000000")
-    for _ in range(90):
-        n = RNG.randint(1, 8)
-        edges = [(RNG.randrange(n), RNG.randrange(n), RNG.randint(-8, 15))
-                 for _ in range(RNG.randrange(25))]
-        queries = [(u, v) for u in range(n) for v in range(n)]
-        data = f"{n} {len(edges)} {len(queries)}\n"
-        data += edge_lines([(u + 1, v + 1, w) for u, v, w in edges])
-        data += edge_lines([(u + 1, v + 1) for u, v in queries])
-        if has_negative_cycle(n, edges):
-            expected = "NEGATIVE CYCLE"
-        else:
-            distances = [bellman_ford(n, edges, u) for u in range(n)]
-            expected = "\n".join("IMPOSSIBLE" if distances[u][v] is None else str(distances[u][v])
-                                 for u, v in queries)
-        check("Floyd_Warshall", data, expected)
-    # Dense negative cycles make unsaturated Floyd values overflow.
-    n = 40
-    edges = [(u, v, -10**9) for u in range(1, n + 1) for v in range(1, n + 1)]
-    check("Floyd_Warshall", f"{n} {len(edges)} 1\n" + edge_lines(edges) + "1 1\n",
-          "NEGATIVE CYCLE")
-    check("Floyd_Warshall", "2 3 3\n1 1 9\n1 2 8\n1 2 3\n1 1\n1 2\n2 1\n",
-          "0\n3\nIMPOSSIBLE")
 
 
-def brute_mst(n, edges):
-    answer = None
-    for chosen in combinations(edges, n - 1):
-        graph = [[] for _ in range(n)]
-        cost = 0
-        for u, v, weight in chosen:
-            graph[u].append(v)
-            graph[v].append(u)
-            cost += weight
-        seen = {0}
-        q = [0]
-        for u in q:
-            for v in graph[u]:
-                if v not in seen:
-                    seen.add(v)
-                    q.append(v)
-        if len(seen) == n and (answer is None or cost < answer):
-            answer = cost
-    return "IMPOSSIBLE" if answer is None else str(answer)
 
 
-def check_mst():
-    for _ in range(80):
-        n = RNG.randint(1, 6)
-        edges = [(RNG.randrange(n), RNG.randrange(n), RNG.randint(-20, 20))
-                 for _ in range(RNG.randrange(10))]
-        data = f"{n} {len(edges)}\n"
-        data += edge_lines([(u + 1, v + 1, w) for u, v, w in edges])
-        expected = brute_mst(n, edges)
-        for name in ["Kruskal", "Prim_Dense"]:
-            check(name, data, expected)
-    for name in ["Kruskal", "Prim_Dense"]:
-        check(name, "4 3\n1 2 1000000000\n2 3 1000000000\n3 4 1000000000\n",
-              "3000000000")
 
 
-def check_scc():
-    for _ in range(80):
-        n = RNG.randint(1, 12)
-        edges = [(RNG.randrange(n), RNG.randrange(n)) for _ in range(RNG.randrange(40))]
-        reach = [[u == v for v in range(n)] for u in range(n)]
-        for u, v in edges:
-            reach[u][v] = True
-        for k in range(n):
-            for u in range(n):
-                for v in range(n):
-                    reach[u][v] |= reach[u][k] and reach[k][v]
-        groups = {frozenset(v for v in range(n) if reach[u][v] and reach[v][u])
-                  for u in range(n)}
-        queries = [(u, v) for u in range(n) for v in range(n)]
-        data = f"{n} {len(edges)} {len(queries)}\n"
-        data += edge_lines([(u + 1, v + 1) for u, v in edges + queries])
-        expected = str(len(groups)) + "\n"
-        expected += "\n".join("YES" if reach[u][v] and reach[v][u] else "NO" for u, v in queries)
-        for name in ["Kosaraju", "Tarjan"]:
-            check(name, data, expected)
 
 
-def check_flow():
-    for _ in range(100):
-        n = RNG.randint(2, 8)
-        source, sink = RNG.sample(range(n), 2)
-        edges = [(RNG.randrange(n), RNG.randrange(n), RNG.randint(0, 20))
-                 for _ in range(RNG.randrange(35))]
-        # Enumerate every source-side cut. This is independent of flow code.
-        minimum = None
-        for mask in range(1 << n):
-            if not (mask & (1 << source)) or (mask & (1 << sink)):
-                continue
-            capacity = sum(c for u, v, c in edges if mask & (1 << u) and not mask & (1 << v))
-            minimum = capacity if minimum is None else min(minimum, capacity)
-        data = f"{n} {len(edges)} {source + 1} {sink + 1}\n"
-        data += edge_lines([(u + 1, v + 1, c) for u, v, c in edges])
-        output = list(map(int, run("Dinic", data).split()))
-        flow, size, *vertices = output
-        side = {v - 1 for v in vertices}
-        assert flow == minimum, (data, flow, minimum)
-        assert size == len(side) == len(vertices)
-        assert vertices == sorted(vertices) and source in side and sink not in side
-        assert sum(c for u, v, c in edges if u in side and v not in side) == flow
-    check("Dinic", "2 1 1 1\n1 2 5\n", "INVALID")
-    check("Dinic", "2 3 1 2\n1 2 1000000000\n1 2 1000000000\n1 2 1000000000\n",
-          "3000000000\n1\n1")
 
 
-def rooted_tree(n, edges, root):
-    graph = [[] for _ in range(n)]
-    for u, v in edges:
-        graph[u].append(v)
-        graph[v].append(u)
-    parent, depth = [-1] * n, [0] * n
-    order = [root]
-    for u in order:
-        for v in graph[u]:
-            if v != parent[u]:
-                parent[v] = u
-                depth[v] = depth[u] + 1
-                order.append(v)
-    return parent, depth
 
 
-def naive_lca(u, v, parent, depth):
-    while depth[u] > depth[v]:
-        u = parent[u]
-    while depth[v] > depth[u]:
-        v = parent[v]
-    while u != v:
-        u, v = parent[u], parent[v]
-    return u
 
 
-def check_trees():
-    for _ in range(70):
-        n = RNG.randint(1, 25)
-        edges = [(v, RNG.randrange(v)) for v in range(1, n)]
-        root = RNG.randrange(n)
-        parent, depth = rooted_tree(n, edges, root)
-        queries = [(RNG.randrange(n), RNG.randrange(n)) for _ in range(80)]
-        data = f"{n} {len(queries)} {root + 1}\n"
-        data += edge_lines([(u + 1, v + 1) for u, v in edges + queries])
-        expected = []
-        for u, v in queries:
-            ancestor = naive_lca(u, v, parent, depth)
-            expected.append(f"{ancestor + 1} {depth[u] + depth[v] - 2 * depth[ancestor]}")
-        for name in ["Binary_Lifting", "Euler_RMQ"]:
-            check(name, data, "\n".join(expected))
-
-        values = [RNG.randint(-10**9, 10**9) for _ in range(n)]
-        initial = values[:]
-        queries, expected = [], []
-        for _ in range(100):
-            u = RNG.randrange(n)
-            if RNG.randrange(2):
-                value = RNG.randint(-10**9, 10**9)
-                queries.append((1, u + 1, value))
-                values[u] = value
-            else:
-                queries.append((2, u + 1))
-                total = 0
-                for v in range(n):
-                    current = v
-                    while current != -1 and current != u:
-                        current = parent[current]
-                    if current == u:
-                        total += values[v]
-                expected.append(str(total))
-        data = f"{n} {len(queries)} {root + 1}\n" + " ".join(map(str, initial)) + "\n"
-        data += edge_lines([(u + 1, v + 1) for u, v in edges])
-        data += edge_lines(queries)
-        check("Euler_Fenwick", data, "\n".join(expected))
 
 
-def check_long_chains():
-    # These exercise the explicit stacks at the documented n=200000 limit.
-    n = 200000
-    edges = "".join(f"{u} {u + 1}\n" for u in range(1, n))
-    for name in ["Kosaraju", "Tarjan"]:
-        check(name, f"{n} {n - 1} 2\n" + edges + f"1 {n}\n{n} {n}\n", f"{n}\nNO\nYES")
-    check("BFS", f"{n} {n - 1} 1\n" + edges, " ".join(map(str, range(n))))
-    check("DFS", f"{n} {n - 1}\n" + edges, "1\n" + " ".join(["1"] * n))
-    for name in ["Binary_Lifting", "Euler_RMQ"]:
-        check(name, f"{n} 2 1\n" + edges + f"1 {n}\n{n - 1} {n}\n",
-              f"1 {n - 1}\n{n - 1} 1")
-    values = " ".join(["1000000000"] * n) + "\n"
-    check("Euler_Fenwick", f"{n} 3 1\n" + values + edges + f"2 1\n1 {n} -1000000000\n2 1\n",
-          f"{n * 10**9}\n{(n - 2) * 10**9}")
-    # Dinic uses bounded recursion: cover its declared maximum depth too.
-    n = 500
-    weighted = "".join(f"{u} {u + 1} 1000000000\n" for u in range(1, n))
-    check("Dinic", f"{n} {n - 1} 1 {n}\n" + weighted, "1000000000\n1\n1")
 
 
 def main():
@@ -389,9 +171,9 @@ def main():
         sources += sorted((ROOT / "3_Stars" / "Trees").rglob("*.cpp"))
     else:
         sources = compile_all()
+    sources = [p for p in sources if p.stem in {"BFS", "DFS", "DSU"}]
     check_samples(sources)
-    for group in [check_traversal, check_dsu, check_shortest_paths, check_mst,
-                  check_scc, check_flow, check_trees, check_long_chains]:
+    for group in [check_traversal, check_dsu]:
         group()
         print(f"Passed: {group.__name__}")
     print(f"PASS: {len(sources)} templates; {RUNS} executable checks, including all samples.")
